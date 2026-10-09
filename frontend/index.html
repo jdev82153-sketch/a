@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0b0d">
+    <title>Agência Marks | Acesso à plataforma</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="login-container">
+        <section class="login-card">
+            <div class="brand">
+                <div class="brand-icon">M</div>
+                <div>
+                    <h1>AGÊNCIA <span>MARKS</span></h1>
+                    <p>PLATAFORMA DE AUTOMAÇÃO</p>
+                </div>
+            </div>
 
+            <div class="login-heading">
+                <span class="eyebrow">ÁREA RESTRITA</span>
+                <h2>Bem-vindo de volta.</h2>
+                <p>Entre na sua conta para continuar.</p>
+            </div>
+
+            <form id="loginForm">
+                <label for="username">Usuário</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Digite seu usuário"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="password">Senha</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Digite sua senha"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" id="loginButton">
+                    Entrar na plataforma <span>→</span>
+                </button>
+
+                <p id="loginMessage" class="login-message" role="status"></p>
+            </form>
+
+            <div class="login-footer">
+                <span class="status-dot"></span>
+                Ambiente de acesso protegido
+            </div>
+        </section>
+
+        <footer>
+            © 2026 Agência Marks · Tecnologia para empresas
+        </footer>
+    </main>
+
+    <script src="js/login.js"></script>
+</body>
+</html>
