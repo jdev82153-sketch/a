@@ -1,40 +1,43 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#090909">
-  <title>Administração | Agência Marks</title>
+  <title>Painel Administrativo | Agência Marks</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     :root {
       --bg: #090909;
       --panel: #111111;
-      --panel-hover: #171717;
+      --panel-2: #171717;
       --border: #292929;
       --orange: #ff6a00;
       --orange-light: #ffad7a;
       --text: #f5f5f5;
-      --muted: #999999;
+      --muted: #929292;
       --green: #4ade80;
       --red: #fb7185;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--bg);
+      background:
+        radial-gradient(ellipse at top, rgba(255, 106, 0, .09), transparent 42%),
+        var(--bg);
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
-    button,
-    input {
+    button, input {
       font: inherit;
     }
 
@@ -44,238 +47,344 @@
 
     button:disabled {
       opacity: .55;
-      cursor: wait;
+      cursor: not-allowed;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    .wrap {
-      width: min(1000px, calc(100% - 32px));
+    .container {
+      width: min(1120px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 35px 0 60px;
     }
 
-    .top {
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(9, 9, 9, .88);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar {
+      min-height: 76px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 30px;
+      gap: 18px;
     }
 
     .brand {
-      color: white;
-      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 850;
+      letter-spacing: -.5px;
+    }
+
+    .brand-icon {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      background: var(--orange);
+      border-radius: 12px;
+      color: #090909;
       font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -1px;
+      font-weight: 950;
+      box-shadow: 0 0 28px rgba(255, 106, 0, .2);
     }
 
-    .brand span {
-      color: var(--orange);
-    }
-
-    .panel {
-      padding: 25px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--panel);
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(27px, 5vw, 37px);
-      letter-spacing: -1.3px;
-    }
-
-    h2 {
-      margin: 0 0 8px;
-      font-size: 20px;
-      letter-spacing: -.4px;
-    }
-
-    p {
-      line-height: 1.6;
-    }
-
-    .muted {
+    .brand small {
+      display: block;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-top: 3px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .back-link {
+      color: #c5c5c5;
+      font-size: 13px;
+      transition: color .2s;
+    }
+
+    .back-link:hover {
+      color: var(--orange-light);
+    }
+
+    main {
+      padding: 42px 0 70px;
+    }
+
+    .page-heading {
+      margin-bottom: 30px;
     }
 
     .eyebrow {
-      color: var(--orange-light);
-      font-size: 11px;
-      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
       letter-spacing: 2px;
-      margin: 0 0 10px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 10px 0 8px;
+      font-size: clamp(28px, 5vw, 40px);
+      letter-spacing: -1.5px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .panel {
+      background: linear-gradient(145deg, #131313, #0f0f0f);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, .13);
+    }
+
+    .panel-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.4px;
+    }
+
+    .panel-description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 7px 0 0;
+    }
+
+    .field {
+      margin-bottom: 15px;
     }
 
     label {
       display: block;
-      margin: 17px 0 8px;
-      color: #ddd;
-      font-size: 13px;
+      color: #d8d8d8;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     input {
       width: 100%;
-      padding: 14px;
-      border: 1px solid #333;
-      border-radius: 9px;
-      background: var(--bg);
+      min-height: 46px;
+      background: #090909;
+      border: 1px solid #303030;
+      border-radius: 10px;
+      padding: 12px 14px;
       color: white;
       outline: none;
+      transition: border .2s, box-shadow .2s;
     }
 
     input:focus {
       border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255, 106, 0, .1);
     }
 
-    .btn {
+    .button {
+      min-height: 42px;
+      padding: 10px 15px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 42px;
-      padding: 11px 15px;
-      border: 1px solid transparent;
-      border-radius: 9px;
-      background: var(--orange);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #1a1a1a;
       color: white;
-      font-size: 13px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: background .18s ease, border-color .18s ease;
-    }
-
-    .btn:hover {
-      background: #ff8126;
-    }
-
-    .btn-secondary {
-      background: #202020;
-      border-color: #383838;
-    }
-
-    .btn-secondary:hover {
-      background: #2a2a2a;
-    }
-
-    .btn-danger {
-      background: #32171a;
-      border-color: #5c252d;
-      color: #ffb4bd;
-    }
-
-    .btn-danger:hover {
-      background: #492026;
-    }
-
-    .btn-small {
-      min-height: 34px;
-      padding: 8px 10px;
       font-size: 12px;
+      font-weight: 750;
+      transition: transform .18s, background .18s, border .18s;
     }
 
-    .full {
+    .button:hover {
+      transform: translateY(-1px);
+      border-color: #484848;
+      background: #222;
+    }
+
+    .button-primary {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #090909;
+    }
+
+    .button-primary:hover {
+      background: #ff812b;
+      border-color: #ff812b;
+    }
+
+    .button-danger {
+      color: var(--red);
+    }
+
+    .button-small {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 11px;
+    }
+
+    .full-width {
       width: 100%;
-      margin-top: 20px;
     }
 
     .message {
-      min-height: 18px;
-      margin: 12px 0 0;
-      color: var(--orange-light);
-      font-size: 13px;
-      line-height: 1.6;
+      display: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 14px;
       overflow-wrap: anywhere;
     }
 
-    .success-message {
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
       color: var(--green);
+      border: 1px solid rgba(74, 222, 128, .22);
+      background: rgba(74, 222, 128, .07);
     }
 
-    .form-head,
-    .list-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
+    .message.error {
+      color: var(--red);
+      border: 1px solid rgba(251, 113, 133, .22);
+      background: rgba(251, 113, 133, .07);
     }
 
-    .form-head {
-      margin-bottom: 8px;
-    }
-
-    .company-count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-      height: 30px;
-      padding: 0 10px;
-      border: 1px solid #3b2a1e;
-      border-radius: 8px;
-      background: #20150f;
+    .message.info {
       color: var(--orange-light);
-      font-size: 13px;
-      font-weight: 700;
+      border: 1px solid rgba(255, 106, 0, .22);
+      background: rgba(255, 106, 0, .07);
     }
 
-    .companies-list {
+    .key-box {
+      display: none;
       margin-top: 20px;
+      border: 1px solid rgba(255, 106, 0, .35);
+      background: rgba(255, 106, 0, .055);
+      border-radius: 12px;
+      padding: 16px;
     }
 
-    .company {
-      position: relative;
-      padding: 19px 0;
-      border-bottom: 1px solid var(--border);
+    .key-box.show {
+      display: block;
     }
 
-    .company:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
+    .key-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--orange-light);
+      margin-bottom: 9px;
+    }
+
+    .key-display {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .key-display code {
+      flex: 1;
+      overflow-wrap: anywhere;
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.7;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    .key-help {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      margin: 10px 0 0;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .count strong {
+      color: white;
+    }
+
+    .companies {
+      display: grid;
+      gap: 12px;
+    }
+
+    .company-card {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 17px;
+      background: rgba(255, 255, 255, .015);
     }
 
     .company-top {
       display: flex;
-      align-items: flex-start;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 14px;
     }
 
-    .company-info {
-      min-width: 0;
-      flex: 1;
-    }
-
     .company-name {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 800;
       overflow-wrap: anywhere;
     }
 
-    .company-date {
+    .company-meta {
       margin-top: 6px;
+      font-size: 11px;
       color: var(--muted);
-      font-size: 12px;
+      line-height: 1.6;
     }
 
     .status {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      flex-shrink: 0;
-      padding: 7px 10px;
-      border: 1px solid;
+      gap: 6px;
+      white-space: nowrap;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
+      padding: 6px 9px;
+      font-size: 10px;
+      font-weight: 800;
     }
 
     .status::before {
@@ -286,391 +395,398 @@
       background: currentColor;
     }
 
-    .status-active {
+    .status.active {
       color: var(--green);
-      border-color: #245337;
-      background: #102219;
+      background: rgba(74, 222, 128, .08);
     }
 
-    .status-inactive {
+    .status.inactive {
       color: var(--red);
-      border-color: #51252d;
-      background: #261316;
+      background: rgba(251, 113, 133, .08);
     }
 
-    .company-key {
+    .access-area {
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 10px;
+      background: #090909;
+      border: 1px solid #242424;
+    }
+
+    .access-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    .access-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 15px;
-      padding: 11px;
-      border: 1px solid #292929;
-      border-radius: 10px;
-      background: #0b0b0b;
-    }
-
-    .key-info {
-      flex: 1;
       min-width: 0;
     }
 
-    .key-label {
-      margin-bottom: 5px;
-      color: #888;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .key-value {
-      color: var(--orange-light);
-      font-family: monospace;
+    .access-key {
+      flex: 1;
+      min-width: 0;
+      color: #f3f3f3;
       font-size: 12px;
-      overflow-wrap: anywhere;
       line-height: 1.6;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      font-family: "SFMono-Regular", Consolas, monospace;
     }
 
-    .key-unavailable {
-      color: #888;
-      font-family: Arial, sans-serif;
+    .access-key.unavailable {
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 11px;
     }
 
     .company-actions {
       display: flex;
-      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .menu-wrap {
       position: relative;
     }
 
-    .dots-button {
-      width: 38px;
-      height: 38px;
-      padding: 0;
-      border: 1px solid #333;
+    .menu-button {
+      width: 35px;
+      height: 35px;
+      border: 1px solid var(--border);
       border-radius: 9px;
-      background: #181818;
+      background: #171717;
       color: white;
-      font-size: 23px;
+      font-size: 20px;
       line-height: 1;
     }
 
-    .dots-button:hover {
-      border-color: var(--orange);
-      color: var(--orange);
-    }
-
     .menu {
+      display: none;
       position: absolute;
-      z-index: 10;
-      top: 44px;
+      top: 42px;
       right: 0;
-      width: 190px;
+      z-index: 5;
+      min-width: 180px;
       padding: 6px;
       border: 1px solid #333;
-      border-radius: 11px;
+      border-radius: 10px;
       background: #171717;
-      box-shadow: 0 12px 35px #0009;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .4);
+    }
+
+    .menu.open {
+      display: grid;
+      gap: 3px;
     }
 
     .menu button {
-      display: block;
-      width: 100%;
-      padding: 11px 10px;
       border: 0;
-      border-radius: 7px;
+      border-radius: 6px;
       background: transparent;
       color: #eee;
       text-align: left;
-      font-size: 13px;
+      padding: 10px;
+      font-size: 11px;
     }
 
     .menu button:hover {
       background: #262626;
     }
 
-    .menu .menu-danger {
-      color: #ff9ba7;
-    }
-
-    .keybox {
-      margin-top: 18px;
-      padding: 16px;
-      border: 1px solid var(--orange);
-      border-radius: 10px;
-      background: #0b0b0b;
-    }
-
-    .generated-key {
-      margin: 12px 0;
-      color: var(--orange-light);
-      font-family: monospace;
-      line-height: 1.8;
-      overflow-wrap: anywhere;
-    }
-
-    .key-warning {
-      color: #999;
-      font-size: 12px;
-      line-height: 1.6;
+    .menu button.danger {
+      color: var(--red);
     }
 
     .empty-state {
-      padding: 25px 10px;
-      color: #999;
-      font-size: 14px;
+      border: 1px dashed #333;
+      border-radius: 12px;
+      padding: 35px 20px;
       text-align: center;
-    }
-
-    .loading {
-      color: #999;
+      color: var(--muted);
       font-size: 13px;
+      line-height: 1.7;
     }
 
-    .divider {
-      height: 1px;
-      margin: 22px 0;
-      background: var(--border);
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(0, 0, 0, .25);
+      border-top-color: #090909;
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    [hidden] {
+      display: none !important;
     }
 
     @media (max-width: 600px) {
-      .wrap {
-        padding-top: 23px;
+      .container {
+        width: calc(100% - 22px);
+      }
+
+      .topbar {
+        min-height: 66px;
+      }
+
+      main {
+        padding-top: 28px;
       }
 
       .panel {
-        padding: 19px;
+        padding: 17px;
       }
 
-      .top {
-        align-items: flex-start;
-      }
-
-      .brand {
-        font-size: 19px;
-      }
-
-      .company-key {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .company-key .btn {
-        width: 100%;
+      .company-card {
+        padding: 13px;
       }
 
       .company-top {
         gap: 9px;
       }
 
-      .status {
-        padding: 6px 8px;
+      .key-display,
+      .access-row {
+        align-items: stretch;
+        flex-direction: column;
       }
 
-      .list-head {
-        align-items: flex-start;
+      .access-row .button,
+      .key-display .button {
+        width: 100%;
+      }
+
+      .company-actions {
+        justify-content: stretch;
+      }
+
+      .company-actions > .button {
+        flex: 1;
       }
     }
   </style>
 </head>
 
 <body>
-  <main class="wrap">
-    <header class="top">
-      <a href="./index.html" class="brand">
-        AGÊNCIA <span>MARKS</span>
+  <header>
+    <div class="container topbar">
+      <a class="brand" href="index.html" aria-label="Agência Marks">
+        <span class="brand-icon">M</span>
+        <span>
+          AGÊNCIA MARKS
+          <small>PAINEL ADMINISTRATIVO</small>
+        </span>
       </a>
+      <a class="back-link" href="index.html">← Voltar ao site</a>
+    </div>
+  </header>
 
-      <a href="./index.html" class="btn btn-secondary">
-        ← Voltar ao site
-      </a>
-    </header>
-
-    <!-- LOGIN ADMINISTRATIVO -->
-    <section id="loginPanel" class="panel">
-      <p class="eyebrow">PAINEL RESTRITO</p>
-      <h1>Área administrativa</h1>
-      <p class="muted">
-        Entre com suas credenciais de administrador para gerenciar as empresas.
-      </p>
+  <main class="container">
+    <section id="loginPanel" class="panel" style="max-width: 440px; margin: 35px auto;">
+      <div class="page-heading">
+        <div class="eyebrow">Área restrita</div>
+        <h1 style="font-size: 29px;">Acesso administrativo</h1>
+        <p class="subtitle">Entre com suas credenciais de administrador.</p>
+      </div>
 
       <form id="loginForm">
-        <label for="username">Seu usuário</label>
-        <input
-          id="username"
-          autocomplete="username"
-          required
-          maxlength="100"
-        >
+        <div class="field">
+          <label for="username">Usuário</label>
+          <input id="username" name="username" autocomplete="username"
+            placeholder="Seu usuário" required>
+        </div>
 
-        <label for="password">Sua senha</label>
-        <input
-          id="password"
-          type="password"
-          autocomplete="current-password"
-          required
-        >
+        <div class="field">
+          <label for="password">Senha</label>
+          <input id="password" name="password" type="password"
+            autocomplete="current-password" placeholder="Sua senha" required>
+        </div>
 
-        <button id="loginButton" class="btn full" type="submit">
+        <button id="loginButton" class="button button-primary full-width" type="submit">
           Entrar no painel
         </button>
-
-        <p id="loginMessage" class="message" role="status"></p>
+        <div id="loginMessage" class="message" role="status"></div>
       </form>
     </section>
 
-    <!-- PAINEL ADMINISTRATIVO -->
-    <section id="adminPanel" class="hidden">
-      <div class="panel">
-        <div class="form-head">
-          <div>
-            <p class="eyebrow">PAINEL DE CONTROLE</p>
-            <h1>Gerenciar empresas</h1>
-          </div>
-
-          <button id="logoutButton" class="btn btn-secondary" type="button">
-            Sair
-          </button>
-        </div>
-
-        <p class="muted">
-          Cadastre clientes, gerencie os acessos e acompanhe o status de cada empresa.
+    <section id="adminPanel" hidden>
+      <div class="page-heading">
+        <div class="eyebrow">Controle da plataforma</div>
+        <h1>Painel administrativo</h1>
+        <p class="subtitle">
+          Gerencie as empresas cadastradas e consulte suas chaves de acesso.
         </p>
       </div>
 
-      <!-- CADASTRO -->
-      <div class="panel">
-        <h2>Cadastrar nova empresa</h2>
-        <p class="muted">
-          Cada empresa terá seu próprio nome e uma chave de acesso individual.
-        </p>
-
-        <form id="companyForm">
-          <label for="companyName">Nome da empresa</label>
-          <input
-            id="companyName"
-            required
-            minlength="2"
-            maxlength="100"
-            placeholder="Ex.: Clínica Exemplo"
-          >
-
-          <button id="createButton" type="submit" class="btn full">
-            + Cadastrar empresa
-          </button>
-
-          <p id="companyMessage" class="message" role="status"></p>
-        </form>
-
-        <div id="keyBox" class="keybox hidden">
-          <strong>Chave de acesso gerada</strong>
-
-          <p id="generatedKey" class="generated-key"></p>
-
-          <button id="copyKeyButton" class="btn" type="button">
-            Copiar chave
-          </button>
-
-          <p class="key-warning">
-            Guarde essa chave em local seguro e envie-a somente ao responsável
-            pela empresa. Ela será exibida aqui apenas nesta ocasião.
-          </p>
-        </div>
-      </div>
-
-      <!-- EMPRESAS CADASTRADAS -->
-      <div class="panel">
-        <div class="list-head">
+      <section class="panel">
+        <div class="panel-heading">
           <div>
-            <h2>Empresas cadastradas</h2>
-            <p class="muted">
-              Consulte a data, a chave disponível e o estado de cada conta.
+            <h2>Cadastrar empresa</h2>
+            <p class="panel-description">
+              Você controla os cadastros e as credenciais de acesso.
             </p>
           </div>
-
-          <span id="companyCount" class="company-count">0</span>
         </div>
 
-        <div id="companiesList" class="companies-list">
-          <p class="loading">Carregando empresas...</p>
+        <form id="companyForm">
+          <div class="field">
+            <label for="companyName">Nome da empresa</label>
+            <input id="companyName" name="companyName"
+              placeholder="Ex.: Clínica Exemplo" maxlength="150" required>
+          </div>
+
+          <button id="createButton" class="button button-primary" type="submit">
+            + Cadastrar empresa
+          </button>
+          <div id="createMessage" class="message" role="status"></div>
+        </form>
+
+        <div id="keyBox" class="key-box">
+          <div class="key-label">CHAVE DE ACESSO DA EMPRESA</div>
+          <div class="key-display">
+            <code id="generatedKey"></code>
+            <button id="copyKeyButton" class="button button-primary button-small"
+              type="button">Copiar chave</button>
+          </div>
+          <p class="key-help">
+            A chave também ficará disponível na lista de empresas, se estiver
+            salva e recuperável pelo servidor.
+          </p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2>Empresas cadastradas</h2>
+            <p class="panel-description">Consulte o nome, a chave e o status de cada conta.</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="refreshButton" class="button button-small" type="button">
+              ↻ Atualizar
+            </button>
+            <button id="logoutButton" class="button button-small" type="button">
+              Sair
+            </button>
+          </div>
         </div>
 
-        <div class="divider"></div>
+        <div class="toolbar">
+          <div class="count">Total de empresas: <strong id="companyCount">0</strong></div>
+        </div>
 
-        <button id="refreshButton" class="btn btn-secondary" type="button">
-          ↻ Atualizar lista
-        </button>
-
-        <p id="listMessage" class="message" role="status"></p>
-      </div>
+        <div id="listMessage" class="message" role="status"></div>
+        <div id="companiesList" class="companies">
+          <div class="empty-state">Carregando empresas...</div>
+        </div>
+      </section>
     </section>
   </main>
 
   <script>
+    "use strict";
+
     const API = "https://agencia-marks.onrender.com";
     const ADMIN_TOKEN_KEY = "marks_admin_token";
 
-    const $ = id => document.getElementById(id);
-
-    // Chaves geradas ficam apenas na memória desta página.
-    // As chaves antigas armazenadas como hash não podem ser recuperadas.
+    // Mantém as chaves recebidas durante a sessão, inclusive após atualizar a lista.
     const visibleKeys = new Map();
+    let latestGeneratedKey = "";
+    let loadingCompanies = false;
 
-    function showMessage(id, text, success = false) {
-      const element = $(id);
-      element.textContent = text || "";
-      element.classList.toggle("success-message", success);
+    const $ = (id) => document.getElementById(id);
+
+    function showMessage(element, message, type = "info") {
+      element.textContent = message;
+      element.className = `message show ${type}`;
+    }
+
+    function clearMessage(element) {
+      element.textContent = "";
+      element.className = "message";
     }
 
     function setLoggedIn(loggedIn) {
-      $("loginPanel").classList.toggle("hidden", loggedIn);
-      $("adminPanel").classList.toggle("hidden", !loggedIn);
+      $("loginPanel").hidden = loggedIn;
+      $("adminPanel").hidden = !loggedIn;
     }
 
-    function logout() {
-      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
-      $("loginForm").reset();
+    function logout(message = "") {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
       setLoggedIn(false);
+      $("password").value = "";
+      if (message) {
+        showMessage($("loginMessage"), message, "info");
+      }
     }
 
     async function api(path, options = {}) {
-      const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY);
 
-      const response = await fetch(API + path, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: "Bearer " + token } : {}),
-          ...(options.headers || {})
-        }
-      });
+      const headers = {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      };
 
-      const data = await response.json().catch(() => ({}));
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      let response;
+
+      try {
+        response = await fetch(`${API}${path}`, {
+          ...options,
+          headers
+        });
+      } catch {
+        throw new Error(
+          "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
+        );
+      }
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        // A resposta pode não conter JSON.
+      }
+
+      if (response.status === 401) {
+        logout("Sua sessão expirou. Entre novamente.");
+        throw new Error(data.error || data.message || "Sessão expirada.");
+      }
 
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          logout();
-        }
-
         throw new Error(
-          data.message || "Não foi possível concluir a operação."
+          data.error || data.message || `Erro na requisição (${response.status}).`
         );
       }
 
       return data;
     }
 
-    function formatDate(dateValue) {
-      if (!dateValue) return "Data não disponível";
+    function formatDate(value) {
+      if (!value) return "Data não informada";
 
-      const date = new Date(dateValue);
+      const date = new Date(value);
 
-      if (Number.isNaN(date.getTime())) {
-        return "Data não disponível";
-      }
+      if (Number.isNaN(date.getTime())) return "Data não informada";
 
       return date.toLocaleDateString("pt-BR", {
         day: "2-digit",
@@ -679,412 +795,414 @@
       });
     }
 
-    async function copyText(text) {
-      if (!text) {
-        throw new Error("Nenhuma chave disponível para copiar.");
+    async function copyText(value) {
+      if (!value) {
+        showMessage($("listMessage"), "Não há uma chave disponível para copiar.", "error");
+        return false;
       }
 
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
-      }
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(value);
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = value;
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.select();
 
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
+          const copied = document.execCommand("copy");
+          textarea.remove();
 
-      document.body.appendChild(textarea);
-      textarea.select();
+          if (!copied) throw new Error("Falha ao copiar");
+        }
 
-      const copied = document.execCommand("copy");
-      textarea.remove();
-
-      if (!copied) {
-        throw new Error("Não foi possível copiar automaticamente.");
+        return true;
+      } catch {
+        window.prompt("Copie a chave abaixo:", value);
+        return false;
       }
     }
 
-    function closeMenus(except = null) {
-      document.querySelectorAll(".menu").forEach(menu => {
-        if (menu !== except) menu.classList.add("hidden");
-      });
+    function showGeneratedKey(key, message = "Chave pronta para copiar.") {
+      latestGeneratedKey = key || "";
+      $("generatedKey").textContent = latestGeneratedKey;
+      $("keyBox").classList.toggle("show", Boolean(latestGeneratedKey));
+
+      if (message && latestGeneratedKey) {
+        showMessage($("createMessage"), message, "success");
+      }
     }
 
-    function createMenuButton(label, action, danger = false) {
+    $("copyKeyButton").addEventListener("click", async () => {
+      const copied = await copyText(latestGeneratedKey);
+
+      if (copied) {
+        showMessage($("createMessage"), "Chave copiada com sucesso.", "success");
+      }
+    });
+
+    function makeButton(label, className, handler) {
       const button = document.createElement("button");
       button.type = "button";
+      button.className = className;
       button.textContent = label;
-
-      if (danger) {
-        button.className = "menu-danger";
-      }
-
-      button.addEventListener("click", action);
+      button.addEventListener("click", handler);
       return button;
     }
 
-    async function changeCompanyStatus(company, active, button) {
-      const action = active ? "reativar" : "suspender";
+    async function copyCompanyKey(key, companyName) {
+      const copied = await copyText(key);
 
-      const confirmation = active
-        ? `Deseja reativar o acesso de "${company.name}"?`
-        : `Deseja suspender "${company.name}"? A empresa perderá o acesso à plataforma.`;
+      if (copied) {
+        showMessage(
+          $("listMessage"),
+          `Chave de acesso de "${companyName}" copiada.`,
+          "success"
+        );
+      }
+    }
 
-      if (!window.confirm(confirmation)) return;
+    function renderCompany(company) {
+      const card = document.createElement("article");
+      card.className = "company-card";
 
-      if (button) button.disabled = true;
+      const id = String(company.id);
+
+      // O backend deve devolver company.key descriptografada para o administrador.
+      // O Map serve como alternativa para chaves geradas nesta sessão.
+      const currentKey = company.key || visibleKeys.get(id) || null;
+
+      if (currentKey) {
+        visibleKeys.set(id, currentKey);
+      }
+
+      const top = document.createElement("div");
+      top.className = "company-top";
+
+      const details = document.createElement("div");
+      details.style.minWidth = "0";
+
+      const name = document.createElement("div");
+      name.className = "company-name";
+      name.textContent = company.name || "Empresa sem nome";
+
+      const meta = document.createElement("div");
+      meta.className = "company-meta";
+      meta.textContent = `ID: ${company.id} · Cadastro: ${formatDate(company.created_at)}`;
+
+      details.append(name, meta);
+
+      const status = document.createElement("span");
+      const active = company.active === true;
+      status.className = `status ${active ? "active" : "inactive"}`;
+      status.textContent = active ? "Ativa" : "Suspensa";
+
+      const menuWrap = document.createElement("div");
+      menuWrap.className = "menu-wrap";
+
+      const menuButton = makeButton("⋯", "menu-button", () => {
+        menu.classList.toggle("open");
+      });
+      menuButton.setAttribute("aria-label", "Opções da empresa");
+
+      const menu = document.createElement("div");
+      menu.className = "menu";
+
+      const statusButton = makeButton(
+        active ? "Suspender empresa" : "Reativar empresa",
+        active ? "danger" : "",
+        async () => {
+          menu.classList.remove("open");
+          await changeCompanyStatus(company, !active);
+        }
+      );
+
+      const rotateButton = makeButton("Gerar nova chave", "", async () => {
+        menu.classList.remove("open");
+
+        const confirmed = window.confirm(
+          `Gerar uma nova chave para "${company.name}"? A chave anterior deixará de funcionar.`
+        );
+
+        if (confirmed) await rotateCompanyKey(company);
+      });
+
+      menu.append(statusButton, rotateButton);
+      menuWrap.append(menuButton, menu);
+      top.append(details, status, menuWrap);
+
+      const accessArea = document.createElement("div");
+      accessArea.className = "access-area";
+
+      const accessLabel = document.createElement("div");
+      accessLabel.className = "access-label";
+      accessLabel.textContent = "Chave de acesso";
+
+      const accessRow = document.createElement("div");
+      accessRow.className = "access-row";
+
+      const keyText = document.createElement("div");
+      keyText.className = "access-key";
+
+      const keyButton = document.createElement("button");
+      keyButton.type = "button";
+      keyButton.className = "button button-primary button-small";
+
+      if (currentKey) {
+        keyText.textContent = currentKey;
+        keyButton.textContent = "Copiar chave";
+        keyButton.addEventListener("click", () => {
+          copyCompanyKey(currentKey, company.name || "empresa");
+        });
+      } else {
+        keyText.classList.add("unavailable");
+        keyText.textContent =
+          "Chave ainda indisponível no servidor. Gere uma nova chave para esta empresa.";
+        keyButton.textContent = "Gerar nova chave";
+        keyButton.addEventListener("click", async () => {
+          const confirmed = window.confirm(
+            `A chave antiga de "${company.name}" não pode ser recuperada. Gerar uma nova chave?`
+          );
+
+          if (confirmed) await rotateCompanyKey(company);
+        });
+      }
+
+      accessRow.append(keyText, keyButton);
+      accessArea.append(accessLabel, accessRow);
+
+      const actions = document.createElement("div");
+      actions.className = "company-actions";
+
+      if (currentKey) {
+        actions.append(
+          makeButton("Copiar chave", "button button-small", () => {
+            copyCompanyKey(currentKey, company.name || "empresa");
+          })
+        );
+      }
+
+      card.append(top, accessArea, actions);
+      return card;
+    }
+
+    async function loadCompanies() {
+      if (loadingCompanies) return;
+      loadingCompanies = true;
+
+      const list = $("companiesList");
+      $("refreshButton").disabled = true;
+      clearMessage($("listMessage"));
+      list.replaceChildren();
+
+      const loading = document.createElement("div");
+      loading.className = "empty-state";
+      loading.textContent = "Carregando empresas...";
+      list.appendChild(loading);
 
       try {
-        // Requer a rota PATCH correspondente no backend.
+        const data = await api("/api/admin/companies");
+        const companies = Array.isArray(data)
+          ? data
+          : Array.isArray(data.companies)
+            ? data.companies
+            : [];
+
+        $("companyCount").textContent = String(companies.length);
+        list.replaceChildren();
+
+        if (companies.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty-state";
+          empty.textContent = "Nenhuma empresa cadastrada ainda.";
+          list.appendChild(empty);
+          return;
+        }
+
+        companies.forEach((company) => {
+          list.appendChild(renderCompany(company));
+        });
+      } catch (error) {
+        list.replaceChildren();
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = error.message || "Não foi possível carregar as empresas.";
+        list.appendChild(empty);
+      } finally {
+        loadingCompanies = false;
+        $("refreshButton").disabled = false;
+      }
+    }
+
+    async function changeCompanyStatus(company, active) {
+      try {
         await api(`/api/admin/companies/${company.id}/status`, {
           method: "PATCH",
           body: JSON.stringify({ active })
         });
 
         showMessage(
-          "listMessage",
-          active
-            ? "Empresa reativada com sucesso."
-            : "Empresa suspensa com sucesso.",
-          true
+          $("listMessage"),
+          active ? "Empresa reativada com sucesso." : "Empresa suspensa com sucesso.",
+          "success"
         );
 
         await loadCompanies();
       } catch (error) {
-        showMessage("listMessage", error.message);
-      } finally {
-        if (button) button.disabled = false;
+        showMessage($("listMessage"), error.message, "error");
       }
     }
 
-    async function rotateCompanyKey(company, button) {
-      const confirmed = window.confirm(
-        `Gerar uma nova chave para "${company.name}"?\n\nA chave anterior deixará de funcionar.`
-      );
-
-      if (!confirmed) return;
-
-      if (button) button.disabled = true;
-
+    async function rotateCompanyKey(company) {
       try {
-        // Requer a rota POST correspondente no backend.
-        const data = await api(
-          `/api/admin/companies/${company.id}/rotate-key`,
-          { method: "POST", body: JSON.stringify({}) }
-        );
-
-        if (!data.key) {
-          throw new Error("A API não retornou a nova chave.");
-        }
-
-        visibleKeys.set(String(company.id), data.key);
-
-        $("generatedKey").textContent = data.key;
-        $("keyBox").classList.remove("hidden");
-
-        showMessage(
-          "companyMessage",
-          `Nova chave gerada para ${company.name}. Copie e guarde-a agora.`,
-          true
-        );
-
-        await loadCompanies();
-        $("keyBox").scrollIntoView({ behavior: "smooth", block: "center" });
-      } catch (error) {
-        showMessage("listMessage", error.message);
-      } finally {
-        if (button) button.disabled = false;
-      }
-    }
-
-    function renderCompany(company) {
-      const item = document.createElement("article");
-      item.className = "company";
-
-      const top = document.createElement("div");
-      top.className = "company-top";
-
-      const info = document.createElement("div");
-      info.className = "company-info";
-
-      const name = document.createElement("h3");
-      name.className = "company-name";
-      name.textContent = company.name;
-
-      const date = document.createElement("div");
-      date.className = "company-date";
-      date.textContent = "Criada em " + formatDate(company.created_at);
-
-      info.append(name, date);
-
-      const status = document.createElement("span");
-      status.className = "status " +
-        (company.active ? "status-active" : "status-inactive");
-      status.textContent = company.active ? "Ativa" : "Suspensa";
-
-      const menuWrap = document.createElement("div");
-      menuWrap.className = "menu-wrap";
-
-      const dots = document.createElement("button");
-      dots.type = "button";
-      dots.className = "dots-button";
-      dots.textContent = "⋮";
-      dots.setAttribute("aria-label", "Administrar " + company.name);
-      dots.setAttribute("aria-expanded", "false");
-
-      const menu = document.createElement("div");
-      menu.className = "menu hidden";
-
-      dots.addEventListener("click", event => {
-        event.stopPropagation();
-
-        const willOpen = menu.classList.contains("hidden");
-        closeMenus(menu);
-        menu.classList.toggle("hidden", !willOpen);
-        dots.setAttribute("aria-expanded", String(willOpen));
-      });
-
-      menu.append(
-        createMenuButton(
-          company.active ? "Suspender empresa" : "Reativar empresa",
-          () => {
-            menu.classList.add("hidden");
-            changeCompanyStatus(company, !company.active, dots);
-          },
-          company.active
-        ),
-        createMenuButton("Gerar nova chave", () => {
-          menu.classList.add("hidden");
-          rotateCompanyKey(company, dots);
-        })
-      );
-
-      menuWrap.append(dots, menu);
-      top.append(info, status, menuWrap);
-
-      const keyBox = document.createElement("div");
-      keyBox.className = "company-key";
-
-      const keyInfo = document.createElement("div");
-      keyInfo.className = "key-info";
-
-      const keyLabel = document.createElement("div");
-      keyLabel.className = "key-label";
-      keyLabel.textContent = "CHAVE DE ACESSO";
-
-      const keyValue = document.createElement("div");
-      keyValue.className = "key-value";
-
-      const currentKey = visibleKeys.get(String(company.id));
-
-      if (currentKey) {
-        keyValue.textContent = currentKey;
-      } else {
-        keyValue.classList.add("key-unavailable");
-        keyValue.textContent =
-          "Protegida — gere uma nova chave para copiar";
-      }
-
-      keyInfo.append(keyLabel, keyValue);
-
-      const copyButton = document.createElement("button");
-      copyButton.type = "button";
-      copyButton.className = "btn btn-secondary btn-small";
-      copyButton.textContent = currentKey ? "Copiar chave" : "Gerar chave";
-
-      copyButton.addEventListener("click", async () => {
-        if (!visibleKeys.has(String(company.id))) {
-          await rotateCompanyKey(company, copyButton);
-          return;
-        }
-
-        try {
-          await copyText(visibleKeys.get(String(company.id)));
-          copyButton.textContent = "Copiada!";
-          showMessage("listMessage", "Chave copiada para a área de transferência.", true);
-
-          setTimeout(() => {
-            copyButton.textContent = "Copiar chave";
-          }, 1800);
-        } catch (error) {
-          showMessage("listMessage", error.message);
-        }
-      });
-
-      keyBox.append(keyInfo, copyButton);
-      item.append(top, keyBox);
-
-      return item;
-    }
-
-    async function loadCompanies() {
-      const list = $("companiesList");
-
-      list.replaceChildren();
-
-      const loading = document.createElement("p");
-      loading.className = "loading";
-      loading.textContent = "Carregando empresas...";
-      list.append(loading);
-
-      $("refreshButton").disabled = true;
-      showMessage("listMessage", "");
-
-      try {
-        const data = await api("/api/admin/companies");
-        list.replaceChildren();
-
-        const companies = Array.isArray(data.companies)
-          ? data.companies
-          : [];
-
-        $("companyCount").textContent = String(companies.length);
-
-        if (companies.length === 0) {
-          const empty = document.createElement("div");
-          empty.className = "empty-state";
-          empty.textContent = "Nenhuma empresa cadastrada ainda.";
-          list.append(empty);
-          return;
-        }
-
-        companies.forEach(company => {
-          list.append(renderCompany(company));
+        const result = await api(`/api/admin/companies/${company.id}/rotate-key`, {
+          method: "POST",
+          body: JSON.stringify({})
         });
+
+        const key = result.key || result.company?.key;
+
+        if (!key) {
+          throw new Error(
+            "O servidor não retornou a nova chave. Verifique o backend e os logs do Render."
+          );
+        }
+
+        visibleKeys.set(String(company.id), key);
+        showGeneratedKey(key, `Nova chave criada para ${company.name}.`);
+
+        await loadCompanies();
       } catch (error) {
-        list.replaceChildren();
-
-        const errorMessage = document.createElement("p");
-        errorMessage.className = "message";
-        errorMessage.textContent = error.message;
-
-        list.append(errorMessage);
-      } finally {
-        $("refreshButton").disabled = false;
+        showMessage($("listMessage"), error.message, "error");
       }
     }
 
-    $("loginForm").addEventListener("submit", async event => {
+    $("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const button = $("loginButton");
       button.disabled = true;
-      showMessage("loginMessage", "Validando acesso...");
+      button.textContent = "Entrando...";
+      clearMessage($("loginMessage"));
 
       try {
-        const response = await fetch(API + "/api/admin/login", {
+        const result = await api("/api/admin/login", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: $("username").value.trim(),
             password: $("password").value
           })
         });
 
-        const data = await response.json().catch(() => ({}));
+        const token = result.token || result.accessToken;
 
-        if (!response.ok) {
-          throw new Error(data.message || "Login não autorizado.");
+        if (!token) {
+          throw new Error("O servidor não retornou o token de acesso.");
         }
 
-        sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
-        $("password").value = "";
-
-        showMessage("loginMessage", "");
+        localStorage.setItem(ADMIN_TOKEN_KEY, token);
         setLoggedIn(true);
-
+        $("password").value = "";
         await loadCompanies();
       } catch (error) {
-        showMessage("loginMessage", error.message);
+        showMessage($("loginMessage"), error.message, "error");
       } finally {
         button.disabled = false;
+        button.textContent = "Entrar no painel";
       }
     });
 
-    $("companyForm").addEventListener("submit", async event => {
+    $("companyForm").addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const button = $("createButton");
+      const name = $("companyName").value.trim();
+
+      if (!name) {
+        showMessage($("createMessage"), "Informe o nome da empresa.", "error");
+        return;
+      }
+
       button.disabled = true;
-      $("keyBox").classList.add("hidden");
-      showMessage("companyMessage", "Criando empresa e gerando chave...");
+      button.textContent = "Cadastrando...";
+      clearMessage($("createMessage"));
 
       try {
-        const data = await api("/api/admin/companies", {
+        const result = await api("/api/admin/companies", {
           method: "POST",
-          body: JSON.stringify({
-            name: $("companyName").value.trim()
-          })
+          body: JSON.stringify({ name })
         });
 
-        if (data.key && data.company && data.company.id != null) {
-          visibleKeys.set(String(data.company.id), data.key);
-          $("generatedKey").textContent = data.key;
-          $("keyBox").classList.remove("hidden");
+        const company = result.company || result;
+        const key = result.key || company.key;
+
+        if (company.id != null && key) {
+          visibleKeys.set(String(company.id), key);
         }
 
-        $("companyForm").reset();
+        $("companyName").value = "";
 
-        showMessage(
-          "companyMessage",
-          data.message || "Empresa cadastrada com sucesso.",
-          true
-        );
+        if (key) {
+          showGeneratedKey(key, "Empresa cadastrada. Chave de acesso pronta para copiar.");
+        } else {
+          $("keyBox").classList.remove("show");
+          showMessage(
+            $("createMessage"),
+            "Empresa cadastrada, mas o servidor não retornou a chave. Confira a resposta do backend.",
+            "error"
+          );
+        }
 
         await loadCompanies();
       } catch (error) {
-        showMessage("companyMessage", error.message);
+        showMessage($("createMessage"), error.message, "error");
       } finally {
         button.disabled = false;
-      }
-    });
-
-    $("copyKeyButton").addEventListener("click", async () => {
-      try {
-        await copyText($("generatedKey").textContent);
-        $("copyKeyButton").textContent = "Chave copiada!";
-
-        setTimeout(() => {
-          $("copyKeyButton").textContent = "Copiar chave";
-        }, 1800);
-      } catch (error) {
-        showMessage("companyMessage", error.message);
+        button.textContent = "+ Cadastrar empresa";
       }
     });
 
     $("refreshButton").addEventListener("click", loadCompanies);
-    $("logoutButton").addEventListener("click", logout);
 
-    document.addEventListener("click", event => {
-      if (!event.target.closest(".menu-wrap")) {
-        closeMenus();
-      }
+    $("logoutButton").addEventListener("click", () => {
+      logout("Você saiu do painel.");
     });
 
-    // Se houver token salvo, confirma que ele ainda é válido antes de abrir o painel.
     async function restoreAdminSession() {
-      if (!sessionStorage.getItem(ADMIN_TOKEN_KEY)) {
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+
+      if (!token) {
         setLoggedIn(false);
         return;
       }
 
       try {
-        const data = await api("/api/auth/me");
+        const result = await api("/api/auth/me");
+        const user = result.user || result;
 
-        if (data.user?.role !== "admin") {
-          logout();
+        if (user.role !== "admin") {
+          logout("Entre com uma conta administrativa.");
           return;
         }
 
         setLoggedIn(true);
         await loadCompanies();
       } catch {
-        logout();
+        localStorage.removeItem(ADMIN_TOKEN_KEY);
+        setLoggedIn(false);
       }
     }
 
-    setLoggedIn(false);
+    document.addEventListener("click", (event) => {
+      document.querySelectorAll(".menu.open").forEach((menu) => {
+        if (!menu.parentElement.contains(event.target)) {
+          menu.classList.remove("open");
+        }
+      });
+    });
+
     restoreAdminSession();
   </script>
 </body>
