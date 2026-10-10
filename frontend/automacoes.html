@@ -3,24 +3,21 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090909">
-  <meta name="description" content="Central de automações inteligentes da Agência Marks.">
   <title>Automações | Agência Marks</title>
 
   <style>
     :root {
       --bg: #090909;
       --panel: #111111;
-      --panel2: #161616;
-      --border: #292929;
+      --panel-hover: #171717;
+      --border: #282828;
       --text: #f5f5f5;
-      --muted: #929292;
+      --muted: #999999;
       --orange: #ff6a00;
-      --orange-soft: rgba(255,106,0,.12);
-      --green: #35d49a;
-      --red: #ff6464;
-      --radius: 16px;
+      --orange-light: #ffad7a;
+      --sidebar-width: 245px;
     }
 
     * { box-sizing: border-box; }
@@ -30,879 +27,1151 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Arial, sans-serif;
+      font-family: Arial, sans-serif;
     }
 
-    button, input, select, textarea { font: inherit; }
+    button, input, select, textarea, a { font: inherit; }
+    a { color: inherit; text-decoration: none; }
     button { cursor: pointer; }
+
+    .hidden { display: none !important; }
 
     .app { min-height: 100vh; }
 
+    /* SIDEBAR — MESMO PADRÃO DA DASHBOARD */
+
     .sidebar {
-      width: 250px;
       position: fixed;
       inset: 0 auto 0 0;
-      padding: 24px 16px;
-      background: #0c0c0c;
-      border-right: 1px solid var(--border);
+      z-index: 10;
       display: flex;
       flex-direction: column;
-      z-index: 10;
+      width: var(--sidebar-width);
+      padding: 25px 16px 18px;
+      background: #0c0c0c;
+      border-right: 1px solid var(--border);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 0 8px 28px;
+      gap: 11px;
+      min-height: 43px;
+      margin: 0 5px 30px;
     }
 
-    .brand img {
-      width: 43px;
-      height: 43px;
-      border-radius: 12px;
-      object-fit: cover;
+    .brand-logo {
+      display: none;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      object-fit: contain;
+      border-radius: 50%;
     }
 
     .brand-name {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 800;
-      letter-spacing: -.5px;
+      letter-spacing: -.7px;
+      white-space: nowrap;
     }
 
     .brand-name span { color: var(--orange); }
 
-    .brand-sub {
+    .brand-description {
+      margin: -20px 5px 28px;
       color: var(--muted);
-      font-size: 11px;
-      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.6;
     }
 
     .nav-label {
-      padding: 10px 12px;
-      font-size: 10px;
-      font-weight: 800;
+      margin: 0 10px 11px;
       color: #777;
-      letter-spacing: 1.5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
     }
 
-    .nav {
-      display: grid;
-      gap: 6px;
-    }
+    .nav { display: grid; gap: 5px; }
 
-    .nav a {
+    .nav-link {
       display: flex;
       align-items: center;
       gap: 12px;
-      color: #aaa;
-      text-decoration: none;
-      padding: 12px 13px;
+      min-height: 43px;
+      padding: 11px 12px;
       border: 1px solid transparent;
-      border-radius: 10px;
+      border-radius: 9px;
+      color: #aaa;
       font-size: 13px;
-      transition: .2s;
+      transition: .2s ease;
     }
 
-    .nav a:hover {
+    .nav-link:hover {
       background: #171717;
       color: white;
     }
 
-    .nav a.active {
-      color: white;
-      background: var(--orange-soft);
-      border-color: rgba(255,106,0,.25);
+    .nav-link.active {
+      background: rgba(255, 106, 0, .09);
+      border-color: rgba(255, 106, 0, .2);
+      color: var(--orange-light);
     }
 
     .nav-icon {
-      width: 21px;
-      text-align: center;
-      font-size: 17px;
+      display: grid;
+      width: 20px;
+      flex: 0 0 20px;
+      place-items: center;
+      font-size: 16px;
     }
 
     .sidebar-bottom {
       margin-top: auto;
-      padding: 14px 12px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .account-card {
+      padding: 13px;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 11px;
       background: #111;
     }
 
-    .sidebar-bottom strong {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 6px;
-    }
-
-    .sidebar-bottom p {
+    .account-label {
+      margin-bottom: 7px;
+      color: var(--muted);
       font-size: 11px;
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 0;
     }
 
-    .main {
-      margin-left: 250px;
-      padding: 30px 34px 50px;
-      max-width: 1600px;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 32px;
-    }
-
-    .breadcrumb {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 9px;
-    }
-
-    h1 {
-      font-size: clamp(25px, 3vw, 34px);
-      margin: 0;
-      letter-spacing: -1.2px;
-    }
-
-    .subtitle {
-      margin: 9px 0 0;
-      color: var(--muted);
+    .account-name {
+      overflow: hidden;
       font-size: 13px;
-      line-height: 1.7;
-      max-width: 650px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .account {
+    .account-status {
       display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 9px 13px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      flex-shrink: 0;
-    }
-
-    .avatar {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      background: var(--orange-soft);
-      color: var(--orange);
-      font-weight: 800;
-    }
-
-    .account strong {
-      display: block;
-      font-size: 12px;
-    }
-
-    .account small {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      margin-top: 4px;
-    }
-
-    .status-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 20px;
-      margin-bottom: 25px;
-      border: 1px solid rgba(255,106,0,.25);
-      border-radius: var(--radius);
-      background:
-        radial-gradient(ellipse at top left, rgba(255,106,0,.09), transparent 65%),
-        var(--panel);
-    }
-
-    .banner-content {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .banner-icon {
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: var(--orange-soft);
-      font-size: 23px;
-    }
-
-    .status-banner h2 {
-      font-size: 15px;
-      margin: 0 0 7px;
-    }
-
-    .status-banner p {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.6;
-    }
-
-    .status-pill {
-      display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 7px 10px;
-      white-space: nowrap;
-      border-radius: 30px;
-      background: #202020;
-      border: 1px solid #333;
-      color: #bbb;
+      margin-top: 10px;
+      color: #aaa;
       font-size: 11px;
-      font-weight: 700;
     }
 
     .status-dot {
       width: 7px;
       height: 7px;
+      flex: 0 0 7px;
       border-radius: 50%;
-      background: #888;
+      background: #36c879;
     }
 
-    .status-pill.connected {
-      color: var(--green);
-      border-color: rgba(53,212,154,.25);
-      background: rgba(53,212,154,.08);
+    .sidebar-footer {
+      margin: 14px 2px 0;
+      color: #666;
+      font-size: 10px;
+      line-height: 1.6;
     }
 
-    .status-pill.connected .status-dot { background: var(--green); }
+    /* ÁREA PRINCIPAL — MESMO PADRÃO DA DASHBOARD */
 
-    .status-pill.error {
-      color: var(--red);
-      border-color: rgba(255,100,100,.25);
+    .main {
+      min-height: 100vh;
+      margin-left: var(--sidebar-width);
+      padding: 30px 34px 45px;
     }
 
-    .status-pill.error .status-dot { background: var(--red); }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 15px;
-      margin-bottom: 27px;
-    }
-
-    .stat-card {
-      padding: 19px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      min-width: 0;
-    }
-
-    .stat-top {
+    .topbar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 18px;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 34px;
     }
 
-    .stat-label {
+    .breadcrumb {
+      margin-bottom: 8px;
       color: var(--muted);
       font-size: 12px;
     }
 
-    .stat-icon {
-      display: grid;
-      place-items: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: #1c1c1c;
+    .breadcrumb span { color: var(--orange); }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(25px, 3vw, 33px);
+      letter-spacing: -1.2px;
     }
 
-    .stat-value {
-      font-size: 21px;
-      font-weight: 800;
-      letter-spacing: -.5px;
-    }
-
-    .stat-note {
+    .page-subtitle {
+      margin: 9px 0 0;
       color: var(--muted);
-      font-size: 11px;
-      margin-top: 7px;
-      line-height: 1.5;
+      font-size: 13px;
+      line-height: 1.7;
     }
 
-    .content-grid {
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date-label {
+      color: #999;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #151515;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      transition: .2s ease;
+    }
+
+    .button:hover { background: #222; }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .button-primary {
+      border-color: var(--orange);
+      background: var(--orange);
+      color: white;
+    }
+
+    .button-primary:hover { background: #ff8126; }
+
+    .button-danger {
+      border-color: #542b25;
+      color: #ffaaa0;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 29px 0 15px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.4px;
+    }
+
+    .section-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* APRESENTAÇÃO */
+
+    .welcome {
+      position: relative;
+      overflow: hidden;
+      padding: 27px;
+      border: 1px solid #333;
+      border-radius: 15px;
+      background: linear-gradient(115deg, #151515, #101010);
+    }
+
+    .welcome::after {
+      position: absolute;
+      top: -90px;
+      right: -70px;
+      width: 230px;
+      height: 230px;
+      border: 1px solid rgba(255, 106, 0, .15);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 28px rgba(255, 106, 0, .025),
+        0 0 0 58px rgba(255, 106, 0, .02);
+      content: "";
+      pointer-events: none;
+    }
+
+    .welcome-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 15px;
+      color: var(--orange-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .welcome h2 {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+      margin: 0;
+      font-size: clamp(23px, 3vw, 30px);
+      letter-spacing: -1px;
+      line-height: 1.25;
+    }
+
+    .welcome p {
+      position: relative;
+      z-index: 1;
+      max-width: 540px;
+      margin: 12px 0 0;
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    /* CARTÕES */
+
+    .automation-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(280px, .85fr);
-      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
       align-items: start;
     }
 
     .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
       min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
     }
 
     .panel-header {
-      padding: 21px 22px;
-      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      margin-bottom: 22px;
     }
 
-    .panel-header h2 {
+    .panel-icon {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      place-items: center;
+      border: 1px solid rgba(255, 106, 0, .2);
+      border-radius: 11px;
+      background: rgba(255, 106, 0, .08);
+      color: var(--orange-light);
+      font-size: 20px;
+    }
+
+    .panel-heading {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .panel-heading h2 {
+      margin: 2px 0 7px;
       font-size: 15px;
-      margin: 0 0 7px;
+      letter-spacing: -.3px;
     }
 
-    .panel-header p {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
+    .panel-heading p {
       margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
     }
 
-    .panel-body { padding: 22px; }
+    /* FORMULÁRIO */
 
-    .field { margin-bottom: 20px; }
-    .field:last-child { margin-bottom: 0; }
+    .field {
+      margin-bottom: 19px;
+    }
 
     .field label {
       display: block;
+      margin-bottom: 9px;
+      color: #e5e5e5;
       font-size: 12px;
       font-weight: 700;
-      margin-bottom: 9px;
     }
 
-    .field .hint {
-      display: block;
-      margin-top: 7px;
-      color: var(--muted);
+    .field-hint {
+      margin-top: 8px;
+      color: #777;
       font-size: 11px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
-    .input, .select, .textarea {
+    .field input,
+    .field select,
+    .field textarea {
+      display: block;
       width: 100%;
-      color: var(--text);
-      background: #0b0b0b;
+      min-width: 0;
       border: 1px solid #303030;
-      border-radius: 10px;
-      padding: 12px 13px;
+      border-radius: 9px;
       outline: none;
-      font-size: 12px;
+      background: #0c0c0c;
+      color: #f5f5f5;
+      font-size: 13px;
       transition: border-color .2s, box-shadow .2s;
     }
 
-    .input:focus, .select:focus, .textarea:focus {
+    .field input,
+    .field select {
+      min-height: 44px;
+      padding: 0 13px;
+    }
+
+    .field textarea {
+      min-height: 135px;
+      padding: 13px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: #626262;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
       border-color: var(--orange);
-      box-shadow: 0 0 0 3px rgba(255,106,0,.09);
+      box-shadow: 0 0 0 3px rgba(255, 106, 0, .08);
     }
 
-    .select { color-scheme: dark; }
-    .textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
-
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    .field select option {
+      background: #111;
+      color: #fff;
     }
 
-    .actions {
+    .form-actions {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
       flex-wrap: wrap;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-    }
-
-    .save-note {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .btn {
-      display: inline-flex;
-      justify-content: center;
       align-items: center;
-      gap: 8px;
-      padding: 11px 15px;
-      border: 1px solid transparent;
-      border-radius: 10px;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .form-message {
+      min-height: 18px;
+      margin: 13px 0 0;
+      color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
-      transition: .2s;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
     }
 
-    .btn-primary {
-      color: white;
-      background: var(--orange);
-    }
+    .form-message.success { color: #66d99b; }
+    .form-message.error { color: #ff9c8f; }
+    .form-message.info { color: var(--orange-light); }
 
-    .btn-primary:hover {
-      background: #e96000;
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      color: #eee;
-      background: #1b1b1b;
-      border-color: #333;
-    }
-
-    .btn-secondary:hover { background: #252525; }
-
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-      transform: none;
-    }
+    /* WHATSAPP */
 
     .connection-card {
-      padding: 19px;
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      background: #0d0d0d;
-      margin-bottom: 15px;
+      padding: 16px;
+      border: 1px solid #303030;
+      border-radius: 10px;
+      background: #0c0c0c;
     }
 
-    .connection-heading {
+    .connection-top {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
     }
 
-    .whatsapp-icon {
+    .connection-icon {
       display: grid;
+      width: 43px;
+      height: 43px;
+      flex: 0 0 43px;
       place-items: center;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(37,211,102,.1);
+      border: 1px solid rgba(54, 200, 121, .2);
+      border-radius: 11px;
+      background: rgba(54, 200, 121, .07);
+      color: #69d69a;
       font-size: 21px;
     }
 
-    .connection-heading strong {
-      display: block;
-      font-size: 13px;
-      margin-bottom: 5px;
+    .connection-info {
+      min-width: 0;
+      flex: 1;
     }
 
-    .connection-heading small {
+    .connection-info strong {
+      display: block;
+      font-size: 13px;
+    }
+
+    .connection-info p {
+      margin: 6px 0 0;
       color: var(--muted);
       font-size: 11px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      max-width: 100%;
+      margin-top: 16px;
+      padding: 7px 10px;
+      border: 1px solid #303030;
+      border-radius: 7px;
+      background: #151515;
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .status-badge::before {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 7px;
+      border-radius: 50%;
+      background: #777;
+      content: "";
+    }
+
+    .status-badge.connected {
+      border-color: rgba(54, 200, 121, .22);
+      color: #79dda4;
+    }
+
+    .status-badge.connected::before { background: #36c879; }
+
+    .status-badge.disconnected {
+      border-color: rgba(255, 106, 0, .2);
+      color: var(--orange-light);
+    }
+
+    .status-badge.disconnected::before { background: var(--orange); }
+
+    .status-badge.error {
+      border-color: #542b25;
+      color: #ffaaa0;
     }
 
     .connection-details {
-      border-top: 1px solid #262626;
-      padding-top: 14px;
+      display: grid;
+      gap: 0;
+      margin-top: 16px;
+      border-top: 1px solid #252525;
+    }
+
+    .detail-row {
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
+      padding: 11px 0;
+      border-bottom: 1px solid #252525;
       font-size: 11px;
     }
 
-    .connection-details span { color: var(--muted); }
-    .connection-details strong { text-align: right; overflow-wrap: anywhere; }
+    .detail-row:last-child { border-bottom: 0; }
 
-    .notice {
-      padding: 13px;
-      background: rgba(255,106,0,.07);
-      border: 1px solid rgba(255,106,0,.18);
-      border-radius: 10px;
-      font-size: 11px;
-      line-height: 1.7;
-      color: #d1c1b7;
-      margin-top: 15px;
+    .detail-label { color: #888; }
+
+    .detail-value {
+      max-width: 65%;
+      color: #ddd;
+      text-align: right;
+      overflow-wrap: anywhere;
     }
 
-    .steps { display: grid; gap: 17px; }
+    /* INSTRUÇÕES */
+
+    .steps {
+      display: grid;
+      gap: 0;
+    }
 
     .step {
       display: flex;
       align-items: flex-start;
       gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid #252525;
+    }
+
+    .step:first-child { padding-top: 0; }
+    .step:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
     }
 
     .step-number {
-      width: 27px;
-      height: 27px;
-      flex-shrink: 0;
       display: grid;
+      width: 29px;
+      height: 29px;
+      flex: 0 0 29px;
       place-items: center;
-      border: 1px solid #393939;
+      border: 1px solid rgba(255, 106, 0, .25);
       border-radius: 9px;
-      background: #1b1b1b;
-      color: var(--orange);
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .step strong {
-      display: block;
+      background: rgba(255, 106, 0, .08);
+      color: var(--orange-light);
       font-size: 12px;
-      margin: 3px 0 5px;
+      font-weight: 700;
     }
 
-    .step p {
+    .step-content { min-width: 0; }
+
+    .step-content strong {
+      display: block;
+      margin: 2px 0 6px;
+      font-size: 12px;
+    }
+
+    .step-content p {
+      margin: 0;
       color: var(--muted);
       font-size: 11px;
-      line-height: 1.7;
-      margin: 0;
+      line-height: 1.8;
     }
 
-    .notice-bar {
-      display: none;
-      margin-bottom: 20px;
-      padding: 13px 15px;
-      border-radius: 10px;
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    .notice-bar.show { display: block; }
-    .notice-bar.success {
-      background: rgba(53,212,154,.08);
-      border: 1px solid rgba(53,212,154,.25);
-      color: var(--green);
-    }
-
-    .notice-bar.error {
-      background: rgba(255,100,100,.08);
-      border: 1px solid rgba(255,100,100,.25);
-      color: #ff9292;
-    }
-
-    .notice-bar.info {
-      background: rgba(255,106,0,.08);
-      border: 1px solid rgba(255,106,0,.25);
-      color: #ffb17c;
-    }
-
-    .footer {
-      padding-top: 25px;
-      text-align: center;
-      color: #666;
+    .notice {
+      margin-top: 16px;
+      color: #777;
       font-size: 11px;
+      line-height: 1.8;
     }
 
-    .mobile-menu {
-      display: none;
-      color: white;
-      background: #171717;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 9px 12px;
+    .full-width { grid-column: 1 / -1; }
+
+    /* AUTENTICAÇÃO — MESMO PADRÃO DA DASHBOARD */
+
+    .auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 106, 0, .09), transparent 55%),
+        #090909;
     }
 
-    @media (max-width: 1100px) {
-      .main { padding: 25px 22px; }
-      .content-grid { grid-template-columns: 1fr; }
+    .auth-card {
+      width: 100%;
+      max-width: 470px;
+      padding: 34px;
+      border: 1px solid #303030;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #151515, #0e0e0e);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, .35);
+      text-align: center;
+    }
+
+    .auth-logo {
+      display: block;
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 17px;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    .auth-brand {
+      margin-bottom: 26px;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .auth-brand span { color: var(--orange); }
+
+    .auth-symbol {
+      display: grid;
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 20px;
+      place-items: center;
+      border: 1px solid rgba(255, 106, 0, .3);
+      border-radius: 18px;
+      background: rgba(255, 106, 0, .09);
+      color: var(--orange);
+      font-size: 29px;
+    }
+
+    .auth-card h1 {
+      margin: 0 0 12px;
+      font-size: clamp(23px, 5vw, 29px);
+      letter-spacing: -.8px;
+    }
+
+    .auth-card p {
+      margin: 0;
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-card .button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .auth-footnote {
+      margin-top: 18px !important;
+      color: #666 !important;
+      font-size: 11px !important;
+    }
+
+    /* RESPONSIVO — MESMO COMPORTAMENTO DA DASHBOARD */
+
+    @media (max-width: 1050px) {
+      .main { padding: 25px 23px 35px; }
+      .automation-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 760px) {
       .sidebar {
-        width: 260px;
-        transform: translateX(-100%);
-        transition: transform .25s;
-        box-shadow: 15px 0 40px rgba(0,0,0,.4);
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: auto;
+        padding: 17px 16px 13px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
       }
 
-      .sidebar.open { transform: translateX(0); }
-      .main { margin-left: 0; padding: 20px 15px 35px; }
-      .mobile-menu { display: inline-flex; }
-      .topbar { align-items: flex-start; }
-      .topbar-left { display: flex; gap: 11px; align-items: flex-start; }
-      .account { padding: 7px; }
-      .account > div:last-child { display: none; }
-      .status-banner { align-items: flex-start; flex-direction: column; }
-      .stats { grid-template-columns: 1fr; gap: 10px; }
-      .stat-card { padding: 15px; }
-      .stat-top { margin-bottom: 10px; }
-      .field-row { grid-template-columns: 1fr; gap: 0; }
-      .panel-body { padding: 17px; }
-      .panel-header { padding: 18px 17px; }
-      .actions { align-items: stretch; flex-direction: column; }
-      .actions .btn { width: 100%; }
+      .brand { margin: 0 2px 17px; }
+      .brand-description, .sidebar-bottom, .nav-label { display: none; }
+
+      .nav {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+
+      .nav-link {
+        min-height: 38px;
+        flex: 0 0 auto;
+        padding: 9px 11px;
+        font-size: 12px;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 23px 16px 35px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+
+      .date-label { display: none; }
+      .welcome { padding: 22px; }
+      .panel { padding: 18px; }
+    }
+
+    @media (max-width: 420px) {
+      .top-actions .button { padding: 10px; }
+      .auth-card { padding: 27px 21px; }
+      .connection-top { align-items: flex-start; }
+      .form-actions .button { width: 100%; }
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <img
-          src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
-          alt="Agência Marks"
-          onerror="this.style.display='none'"
-        >
-        <div>
-          <div class="brand-name">AGÊNCIA <span>MARKS</span></div>
-          <div class="brand-sub">AUTOMAÇÃO INTELIGENTE</div>
-        </div>
-      </div>
+  <!-- Verificação da sessão -->
+  <section id="authLoading" class="auth-screen" aria-live="polite">
+    <div class="auth-card">
+      <img
+        class="auth-logo"
+        src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
+        alt="Agência Marks"
+        onerror="this.style.display='none'"
+      >
+      <div class="auth-brand">AGÊNCIA <span>MARKS</span></div>
+      <div class="auth-symbol" aria-hidden="true">↻</div>
+      <h1>Verificando sua conta</h1>
+      <p>Aguarde enquanto confirmamos sua sessão com segurança.</p>
+    </div>
+  </section>
 
-      <div class="nav-label">Plataforma</div>
-      <nav class="nav">
-        <a href="./dashboard.html">
-          <span class="nav-icon">▦</span> Visão geral
+  <!-- Conta suspensa -->
+  <section id="suspensionScreen" class="auth-screen hidden" aria-live="assertive">
+    <div class="auth-card">
+      <img
+        class="auth-logo"
+        src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
+        alt="Agência Marks"
+        onerror="this.style.display='none'"
+      >
+      <div class="auth-brand">AGÊNCIA <span>MARKS</span></div>
+      <div class="auth-symbol" aria-hidden="true">!</div>
+      <h1>Conta suspensa</h1>
+      <p id="suspensionMessage">
+        Sua conta foi suspensa. Entre em contato com o administrador.
+      </p>
+      <button class="button button-primary" id="suspensionLogout" type="button">
+        Sair da conta
+      </button>
+      <p class="auth-footnote">
+        O acesso à plataforma está temporariamente indisponível.
+      </p>
+    </div>
+  </section>
+
+  <!-- Erro de autenticação -->
+  <section id="authErrorScreen" class="auth-screen hidden" aria-live="polite">
+    <div class="auth-card">
+      <img
+        class="auth-logo"
+        src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
+        alt="Agência Marks"
+        onerror="this.style.display='none'"
+      >
+      <div class="auth-brand">AGÊNCIA <span>MARKS</span></div>
+      <div class="auth-symbol" aria-hidden="true">!</div>
+      <h1 id="authErrorTitle">Não foi possível verificar sua conta</h1>
+      <p id="authErrorMessage">
+        Não conseguimos confirmar sua sessão com o servidor.
+      </p>
+      <button class="button button-primary" id="retryAuthButton" type="button">
+        Tentar novamente
+      </button>
+      <button class="button" id="errorLogoutButton" type="button">
+        Sair e voltar ao login
+      </button>
+    </div>
+  </section>
+
+  <!-- Aplicação -->
+  <div class="app hidden" id="appShell">
+    <aside class="sidebar">
+      <a class="brand" href="./index.html" aria-label="Agência Marks">
+        <img
+          class="brand-logo"
+          id="brandLogo"
+          src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
+          alt="Logo Agência Marks"
+        >
+        <span class="brand-name">AGÊNCIA <span>MARKS</span></span>
+      </a>
+
+      <p class="brand-description">
+        Mais inteligência. Menos trabalho manual.
+      </p>
+
+      <p class="nav-label">Menu principal</p>
+
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link" href="./dashboard.html">
+          <span class="nav-icon">⌂</span>
+          Visão geral
         </a>
-        <a href="./automacoes.html" class="active">
-          <span class="nav-icon">ϟ</span> Automações
+
+        <a class="nav-link active" href="./automacoes.html" aria-current="page">
+          <span class="nav-icon">⟳</span>
+          Automações
         </a>
-        <a href="./vendas.html">
-          <span class="nav-icon">↗</span> Inteligência de vendas
+
+        <a class="nav-link" href="./vendas.html">
+          <span class="nav-icon">↗</span>
+          Inteligência de vendas
         </a>
-        <a href="./relatorios.html">
-          <span class="nav-icon">▤</span> Relatórios
+
+        <a class="nav-link" href="./relatorios.html">
+          <span class="nav-icon">▤</span>
+          Relatórios
         </a>
-        <a href="./admin.html" id="adminLink" hidden>
-          <span class="nav-icon">⚙</span> Administração
+
+        <a class="nav-link hidden" id="adminLink" href="./admin.html">
+          <span class="nav-icon">⚙</span>
+          Administração
         </a>
       </nav>
 
       <div class="sidebar-bottom">
-        <strong>Agência Marks 2.0</strong>
-        <p>Configure seu assistente, personalize as respostas e acompanhe a conexão dos seus canais.</p>
+        <div class="account-card">
+          <div class="account-label">Conta conectada</div>
+          <div class="account-name" id="accountName">Carregando conta...</div>
+          <div class="account-status">
+            <span class="status-dot"></span>
+            Sessão ativa
+          </div>
+        </div>
+
+        <p class="sidebar-footer">
+          Agência Marks · Plataforma de soluções digitais
+        </p>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu" id="menuButton" type="button" aria-label="Abrir menu">☰</button>
-          <div>
-            <div class="breadcrumb">Plataforma / Automações</div>
-            <h1>Central de automações</h1>
-            <p class="subtitle">
-              Configure o comportamento do seu assistente e prepare o atendimento
-              da sua empresa para trabalhar de forma mais inteligente.
-            </p>
-          </div>
+        <div>
+          <div class="breadcrumb">Plataforma <span>/</span> Automações</div>
+          <h1 class="page-title">Automações</h1>
+          <p class="page-subtitle">
+            Configure seu assistente e acompanhe as integrações da sua operação.
+          </p>
         </div>
 
-        <div class="account">
-          <div class="avatar">M</div>
-          <div>
-            <strong id="companyName">Sua empresa</strong>
-            <small>Área da empresa</small>
-          </div>
+        <div class="top-actions">
+          <span class="date-label" id="todayDate"></span>
+          <button class="button" id="refreshButton" type="button">
+            ↻ Atualizar
+          </button>
         </div>
       </header>
 
-      <div id="noticeBar" class="notice-bar" role="status" aria-live="polite"></div>
+      <section class="welcome">
+        <div class="welcome-tag">● AUTOMAÇÃO INTELIGENTE</div>
+        <h2>Deixe os processos trabalharem por você.</h2>
+        <p>
+          Personalize o comportamento do seu assistente, defina como ele
+          deve atender seus clientes e acompanhe o estado das integrações.
+          Suas configurações ficam vinculadas à sua conta.
+        </p>
+      </section>
 
-      <section class="status-banner">
-        <div class="banner-content">
-          <div class="banner-icon">✦</div>
+      <!-- Configurações da IA -->
+      <section aria-labelledby="settingsTitle">
+        <div class="section-heading">
           <div>
-            <h2>Seu assistente, do seu jeito</h2>
-            <p>Personalize as instruções e consulte o estado da integração do WhatsApp.</p>
+            <h2 id="settingsTitle">Configurações do assistente</h2>
+            <p>Defina a personalidade e as orientações da sua inteligência artificial.</p>
           </div>
         </div>
-        <div id="mainStatus" class="status-pill">
-          <span class="status-dot"></span>
-          Verificando status...
-        </div>
-      </section>
 
-      <section class="stats">
-        <article class="stat-card">
-          <div class="stat-top">
-            <span class="stat-label">Assistente virtual</span>
-            <span class="stat-icon">✦</span>
-          </div>
-          <div class="stat-value" id="assistantStat">Configurando</div>
-          <div class="stat-note">Personalização salva da sua empresa</div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-top">
-            <span class="stat-label">WhatsApp Business</span>
-            <span class="stat-icon">◉</span>
-          </div>
-          <div class="stat-value" id="whatsappStat">Verificando</div>
-          <div class="stat-note" id="whatsappNote">Consultando a API</div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-top">
-            <span class="stat-label">Automação</span>
-            <span class="stat-icon">ϟ</span>
-          </div>
-          <div class="stat-value" id="automationStat">Em configuração</div>
-          <div class="stat-note">O envio automático depende da integração completa</div>
-        </article>
-      </section>
-
-      <section class="content-grid">
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Personalidade do assistente</h2>
-            <p>Defina como o assistente deve se apresentar e orientar seus clientes.</p>
-          </div>
-
-          <div class="panel-body">
-            <form id="settingsForm">
-              <div class="field">
-                <label for="businessType">Segmento da empresa</label>
-                <input
-                  class="input"
-                  id="businessType"
-                  name="businessType"
-                  maxlength="120"
-                  placeholder="Ex.: clínica odontológica, loja, imobiliária"
-                >
-                <span class="hint">Ajuda a contextualizar as instruções do atendimento.</span>
-              </div>
-
-              <div class="field-row">
-                <div class="field">
-                  <label for="assistantName">Nome do assistente</label>
-                  <input
-                    class="input"
-                    id="assistantName"
-                    name="assistantName"
-                    maxlength="100"
-                    minlength="2"
-                    required
-                    placeholder="Ex.: Alex"
-                  >
-                </div>
-
-                <div class="field">
-                  <label for="tone">Tom de voz</label>
-                  <select class="select" id="tone" name="tone">
-                    <option>Profissional e acolhedor</option>
-                    <option>Amigável e descontraído</option>
-                    <option>Formal e objetivo</option>
-                    <option>Consultivo e persuasivo</option>
-                    <option>Elegante e sofisticado</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="instructions">Instruções personalizadas</label>
-                <textarea
-                  class="textarea"
-                  id="instructions"
-                  name="instructions"
-                  maxlength="6000"
-                  placeholder="Ex.: apresente os serviços, tire dúvidas frequentes, explique os horários de atendimento e encaminhe para uma pessoa quando não souber responder."
-                ></textarea>
-                <span class="hint">
-                  Escreva as regras que deverão orientar o assistente. Não inclua senhas
-                  nem tokens de acesso neste campo.
-                </span>
-              </div>
-
-              <div class="actions">
-                <span class="save-note" id="saveNote">As alterações ainda não foram verificadas.</span>
-                <button class="btn btn-primary" id="saveButton" type="submit">
-                  <span>✓</span> Salvar configurações
-                </button>
-              </div>
-            </form>
-          </div>
-        </article>
-
-        <div>
-          <article class="panel">
+        <div class="automation-grid">
+          <section class="panel">
             <div class="panel-header">
-              <h2>Conexão do WhatsApp</h2>
-              <p>Confira o estado da conexão cadastrada para sua empresa.</p>
+              <div class="panel-icon" aria-hidden="true">✳</div>
+              <div class="panel-heading">
+                <h2>Personalidade da IA</h2>
+                <p>Escolha como o assistente deve se apresentar e conversar.</p>
+              </div>
             </div>
 
-            <div class="panel-body">
+            <form id="settingsForm">
+              <div class="field">
+                <label for="assistantName">Nome do assistente</label>
+                <input
+                  id="assistantName"
+                  name="assistantName"
+                  type="text"
+                  maxlength="80"
+                  placeholder="Ex.: Assistente Marks"
+                >
+                <div class="field-hint">
+                  O nome que identifica seu assistente.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="businessSegment">Segmento da empresa</label>
+                <input
+                  id="businessSegment"
+                  name="businessSegment"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Ex.: clínica, imobiliária, comércio..."
+                >
+                <div class="field-hint">
+                  Ajuda a contextualizar o atendimento para o seu negócio.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="assistantTone">Tom de comunicação</label>
+                <select id="assistantTone" name="tone">
+                  <option value="profissional">Profissional</option>
+                  <option value="amigavel">Amigável e acolhedor</option>
+                  <option value="consultivo">Consultivo e especialista</option>
+                  <option value="direto">Direto e objetivo</option>
+                  <option value="persuasivo">Comercial e persuasivo</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="assistantInstructions">Instruções personalizadas</label>
+                <textarea
+                  id="assistantInstructions"
+                  name="instructions"
+                  maxlength="6000"
+                  placeholder="Explique como a IA deve atender, quais serviços sua empresa oferece, como responder às dúvidas e quais informações deve solicitar..."
+                ></textarea>
+                <div class="field-hint">
+                  Inclua informações úteis sobre seu negócio, seus serviços,
+                  suas regras de atendimento e o que o assistente deve evitar.
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  class="button button-primary"
+                  id="saveSettingsButton"
+                  type="submit"
+                >
+                  Salvar configurações
+                </button>
+
+                <button class="button" id="reloadSettingsButton" type="button">
+                  Descartar alterações
+                </button>
+              </div>
+
+              <p
+                class="form-message"
+                id="settingsMessage"
+                role="status"
+                aria-live="polite"
+              ></p>
+            </form>
+          </section>
+
+          <!-- Status da integração -->
+          <div>
+            <section class="panel">
+              <div class="panel-header">
+                <div class="panel-icon" aria-hidden="true">⌁</div>
+                <div class="panel-heading">
+                  <h2>WhatsApp Business</h2>
+                  <p>Consulte o estado da integração de mensagens da sua empresa.</p>
+                </div>
+              </div>
+
               <div class="connection-card">
-                <div class="connection-heading">
-                  <div class="whatsapp-icon">◉</div>
-                  <div>
-                    <strong>WhatsApp Business Platform</strong>
-                    <small id="connectionDescription">Verificando conexão...</small>
+                <div class="connection-top">
+                  <div class="connection-icon" aria-hidden="true">◉</div>
+                  <div class="connection-info">
+                    <strong>Integração com WhatsApp</strong>
+                    <p id="whatsappDescription">
+                      Consulte o servidor para verificar o estado da conexão.
+                    </p>
                   </div>
                 </div>
 
+                <div
+                  class="status-badge"
+                  id="whatsappBadge"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Aguardando verificação
+                </div>
+
                 <div class="connection-details">
-                  <span>Número conectado</span>
-                  <strong id="phoneNumber">Não informado</strong>
+                  <div class="detail-row">
+                    <span class="detail-label">Número conectado</span>
+                    <span class="detail-value" id="whatsappNumber">—</span>
+                  </div>
+
+                  <div class="detail-row">
+                    <span class="detail-label">Última verificação</span>
+                    <span class="detail-value" id="whatsappLastCheck">—</span>
+                  </div>
                 </div>
 
-                <div class="connection-details" style="margin-top:12px">
-                  <span>Última conexão</span>
-                  <strong id="connectedAt">—</strong>
+                <div class="form-actions" style="margin-top:16px">
+                  <button
+                    class="button button-primary"
+                    id="checkWhatsappButton"
+                    type="button"
+                  >
+                    ↻ Verificar conexão
+                  </button>
+                </div>
+
+                <p
+                  class="form-message"
+                  id="whatsappMessage"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+
+              <p class="notice">
+                A verificação consulta o estado informado pelo servidor.
+                Ela não cria uma conexão automaticamente nem envia mensagens.
+              </p>
+            </section>
+
+            <section class="panel" style="margin-top:14px">
+              <div class="panel-header">
+                <div class="panel-icon" aria-hidden="true">i</div>
+                <div class="panel-heading">
+                  <h2>Antes de ativar</h2>
+                  <p>O que é necessário para colocar a automação em funcionamento.</p>
                 </div>
               </div>
 
-              <button class="btn btn-secondary" id="refreshButton" type="button" style="width:100%">
-                ↻ Atualizar status
-              </button>
-
-              <div class="notice">
-                A conexão oficial ainda precisa ser configurada no Meta for Developers.
-                Este painel não simula uma conexão nem envia mensagens por conta própria.
-              </div>
-            </div>
-          </article>
-
-          <article class="panel" style="margin-top:20px">
-            <div class="panel-header">
-              <h2>Próximas etapas</h2>
-              <p>O que falta para colocar o atendimento automático em funcionamento.</p>
-            </div>
-
-            <div class="panel-body">
               <div class="steps">
                 <div class="step">
                   <div class="step-number">01</div>
-                  <div>
-                    <strong>Personalizar o assistente</strong>
-                    <p>Salve o segmento, o nome e as instruções específicas da empresa.</p>
+                  <div class="step-content">
+                    <strong>Configure o assistente</strong>
+                    <p>
+                      Informe o segmento, o tom de comunicação e as instruções
+                      específicas da sua empresa.
+                    </p>
                   </div>
                 </div>
 
                 <div class="step">
                   <div class="step-number">02</div>
-                  <div>
-                    <strong>Conectar o WhatsApp oficial</strong>
-                    <p>Configurar o aplicativo Meta, a conta comercial e as permissões necessárias.</p>
+                  <div class="step-content">
+                    <strong>Configure as integrações</strong>
+                    <p>
+                      As credenciais e permissões necessárias devem ser
+                      configuradas com segurança no servidor.
+                    </p>
                   </div>
                 </div>
 
                 <div class="step">
                   <div class="step-number">03</div>
-                  <div>
-                    <strong>Integrar a inteligência artificial</strong>
-                    <p>Configurar o modelo de IA, o webhook de mensagens e o envio de respostas.</p>
+                  <div class="step-content">
+                    <strong>Teste o atendimento</strong>
+                    <p>
+                      Antes de atender clientes reais, valide as respostas,
+                      os fluxos e os limites definidos para o assistente.
+                    </p>
                   </div>
                 </div>
               </div>
-            </div>
-          </article>
+            </section>
+          </div>
         </div>
       </section>
 
-      <footer class="footer">
-        Agência Marks · Automação inteligente para empresas
-      </footer>
+      <p class="notice">
+        As configurações são salvas por meio da API. A disponibilidade da IA
+        e do WhatsApp depende das integrações e dos serviços configurados no servidor.
+      </p>
     </main>
   </div>
 
@@ -910,246 +1179,559 @@
     (() => {
       "use strict";
 
-      const API_BASE = "https://agencia-marks.onrender.com";
+      const API = "https://agencia-marks.onrender.com";
+      const COMPANY_TOKEN_KEY = "marks_company_token";
+      const ADMIN_TOKEN_KEY = "marks_admin_token";
+      const COMPANY_NAME_KEY = "marks_company_name";
 
-      const companyToken = sessionStorage.getItem("marks_company_token");
-      const adminToken = sessionStorage.getItem("marks_admin_token");
-      const token = companyToken || adminToken;
+      const SUSPENSION_FALLBACK =
+        "Sua conta foi suspensa pelo ADM João. Entre em contato com o administrador para obter ajuda.";
 
-      const $ = (id) => document.getElementById(id);
+      const $ = id => document.getElementById(id);
 
-      const form = $("settingsForm");
-      const saveButton = $("saveButton");
-      const saveNote = $("saveNote");
-      const noticeBar = $("noticeBar");
+      let currentToken = null;
+      let currentRole = null;
+      let checkingSession = false;
+      let suspended = false;
+      let settingsRequestId = 0;
+      let lastSettings = null;
 
-      let originalSettings = null;
+      function showOnly(screenId) {
+        [
+          "authLoading",
+          "suspensionScreen",
+          "authErrorScreen",
+          "appShell"
+        ].forEach(id => $(id).classList.add("hidden"));
 
-      function showNotice(message, type = "info") {
-        noticeBar.textContent = message;
-        noticeBar.className = `notice-bar show ${type}`;
+        if (screenId) $(screenId).classList.remove("hidden");
       }
 
-      function setPill(element, text, state = "") {
-        element.className = `status-pill${state ? " " + state : ""}`;
-        element.replaceChildren();
+      function clearSession() {
+        sessionStorage.removeItem(COMPANY_TOKEN_KEY);
+        sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+        sessionStorage.removeItem(COMPANY_NAME_KEY);
+        currentToken = null;
+        currentRole = null;
+      }
 
-        const dot = document.createElement("span");
-        dot.className = "status-dot";
-        element.append(dot, document.createTextNode(text));
+      function logout() {
+        clearSession();
+        window.location.replace("./login.html");
+      }
+
+      function showSuspended(message) {
+        suspended = true;
+        $("suspensionMessage").textContent =
+          typeof message === "string" && message.trim()
+            ? message
+            : SUSPENSION_FALLBACK;
+
+        showOnly("suspensionScreen");
+      }
+
+      function showAuthError(title, message) {
+        $("authErrorTitle").textContent =
+          title || "Não foi possível verificar sua conta";
+
+        $("authErrorMessage").textContent =
+          message || "Não conseguimos confirmar sua sessão com o servidor.";
+
+        showOnly("authErrorScreen");
       }
 
       async function apiRequest(path, options = {}) {
-        const response = await fetch(`${API_BASE}${path}`, {
+        const response = await fetch(API + path, {
           ...options,
           headers: {
-            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
             ...(options.body ? { "Content-Type": "application/json" } : {}),
-            ...options.headers
-          }
+            Authorization: "Bearer " + currentToken,
+            ...(options.headers || {})
+          },
+          cache: "no-store"
         });
 
-        let data;
+        const data = await response.json().catch(() => ({}));
 
-        try {
-          data = await response.json();
-        } catch {
-          throw new Error("O servidor retornou uma resposta inválida.");
+        if (
+          response.status === 403 &&
+          data &&
+          data.code === "COMPANY_SUSPENDED"
+        ) {
+          showSuspended(data.message);
+          const error = new Error(data.message || SUSPENSION_FALLBACK);
+          error.suspended = true;
+          throw error;
         }
 
         if (response.status === 401 || response.status === 403) {
-          sessionStorage.removeItem("marks_company_token");
-          sessionStorage.removeItem("marks_admin_token");
-          window.location.href = "./login.html";
-          throw new Error("Sua sessão expirou. Entre novamente.");
+          clearSession();
+
+          const error = new Error(
+            data.message || "Sua sessão não é mais válida. Entre novamente."
+          );
+          error.auth = true;
+          throw error;
         }
 
-        if (!response.ok || data.success === false) {
-          throw new Error(data.message || "Não foi possível concluir a operação.");
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+            "O servidor não conseguiu concluir a solicitação. HTTP " +
+            response.status
+          );
         }
 
         return data;
       }
 
-      function formatDate(value) {
-        if (!value) return "—";
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) return "—";
-
-        return date.toLocaleString("pt-BR", {
-          dateStyle: "short",
-          timeStyle: "short"
-        });
+      async function requestCurrentUser() {
+        return apiRequest("/api/auth/me", { method: "GET" });
       }
 
-      function fillSettings(settings = {}) {
-        $("businessType").value = settings.business_type || "";
-        $("assistantName").value = settings.assistant_name || "Assistente Marks";
-        $("tone").value = settings.tone || "Profissional e acolhedor";
-        $("instructions").value = settings.instructions || "";
+      function updateUserInformation(data) {
+        const user = data && data.user ? data.user : data;
+        if (!user) return;
 
-        originalSettings = JSON.stringify({
-          businessType: $("businessType").value,
-          assistantName: $("assistantName").value,
-          tone: $("tone").value,
-          instructions: $("instructions").value
-        });
+        currentRole = user.role || null;
 
-        $("assistantStat").textContent = $("assistantName").value;
-        saveNote.textContent = "Configurações carregadas do servidor.";
-      }
+        const companyName =
+          user.companyName ||
+          user.name ||
+          (data.company && data.company.name) ||
+          "";
 
-      function currentSettings() {
-        return {
-          businessType: $("businessType").value.trim(),
-          assistantName: $("assistantName").value.trim(),
-          tone: $("tone").value,
-          instructions: $("instructions").value.trim()
-        };
-      }
-
-      function renderWhatsApp(whatsapp = {}) {
-        const status = whatsapp.connection_status || "disconnected";
-        const labels = {
-          connected: "Conectado",
-          pending: "Aguardando configuração",
-          disconnected: "Desconectado",
-          error: "Erro na conexão"
-        };
-
-        const label = labels[status] || "Status desconhecido";
-        const stateClass = status === "connected"
-          ? "connected"
-          : status === "error" ? "error" : "";
-
-        setPill($("mainStatus"), label, stateClass);
-        $("whatsappStat").textContent = label;
-        $("whatsappNote").textContent = whatsapp.display_phone || "Nenhum número informado";
-        $("connectionDescription").textContent = label;
-        $("phoneNumber").textContent = whatsapp.display_phone || "Não informado";
-        $("connectedAt").textContent = formatDate(whatsapp.connected_at);
-
-        if (status === "connected") {
-          $("automationStat").textContent = "Conexão registrada";
+        if (companyName) {
+          $("accountName").textContent = companyName;
+          sessionStorage.setItem(COMPANY_NAME_KEY, companyName);
+        } else if (currentRole === "admin") {
+          $("accountName").textContent = "Administrador";
         } else {
-          $("automationStat").textContent = "Em configuração";
+          $("accountName").textContent = "Conta conectada";
+        }
+
+        if (currentRole === "admin") {
+          $("adminLink").classList.remove("hidden");
+        } else {
+          $("adminLink").classList.add("hidden");
         }
       }
 
-      async function loadPage() {
-        try {
-          const data = await apiRequest("/api/automation/settings");
+      async function verifySession(initial = false) {
+        if (checkingSession || suspended) return;
 
-          fillSettings(data.settings || {});
-          renderWhatsApp(data.whatsapp || {});
-          $("companyName").textContent = data.companyName || "Sua empresa";
-        } catch (error) {
-          showNotice(
-            `${error.message} Confira se o backend foi atualizado e publicado no Render.`,
-            "error"
-          );
-          setPill($("mainStatus"), "Não foi possível verificar", "error");
-          $("whatsappStat").textContent = "Indisponível";
-          $("whatsappNote").textContent = "Não foi possível consultar a API";
-          $("connectionDescription").textContent = "Não foi possível consultar a API";
-          $("automationStat").textContent = "Não verificada";
-          saveNote.textContent = "A API ainda não confirmou as configurações.";
-        }
-      }
-
-      async function refreshWhatsApp() {
-        const button = $("refreshButton");
-        button.disabled = true;
-        button.textContent = "Consultando...";
+        checkingSession = true;
 
         try {
-          const data = await apiRequest("/api/automation/whatsapp/status");
-          renderWhatsApp(data.whatsapp || {});
-          showNotice("Status atualizado com os dados retornados pelo servidor.", "success");
+          if (!currentToken) {
+            clearSession();
+            window.location.replace("./login.html");
+            return;
+          }
+
+          const data = await requestCurrentUser();
+
+          if (suspended) return;
+
+          updateUserInformation(data);
+
+          if (initial) {
+            showOnly("appShell");
+            await loadAllData();
+          }
         } catch (error) {
-          showNotice(error.message, "error");
+          if (error.suspended) return;
+
+          if (error.auth) {
+            $("retryAuthButton").classList.add("hidden");
+            showAuthError(
+              "Sessão encerrada",
+              error.message || "Entre novamente para continuar."
+            );
+            return;
+          }
+
+          if (initial) {
+            showAuthError(
+              "Não foi possível verificar sua conta",
+              "O servidor pode estar iniciando ou temporariamente indisponível. Tente novamente em alguns instantes."
+            );
+          } else {
+            showMessage(
+              "settingsMessage",
+              "Não foi possível verificar a sessão. Tente novamente.",
+              "error"
+            );
+          }
         } finally {
-          button.disabled = false;
-          button.textContent = "↻ Atualizar status";
+          checkingSession = false;
+          $("refreshButton").disabled = false;
         }
       }
 
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+      function showMessage(id, message, type = "") {
+        const element = $(id);
+        element.textContent = message || "";
+        element.className = "form-message" + (type ? " " + type : "");
+      }
 
-        const settings = currentSettings();
+      function getSettingsObject(data) {
+        if (!data || typeof data !== "object") return {};
 
-        if (settings.assistantName.length < 2) {
-          showNotice("Informe um nome com pelo menos 2 caracteres.", "error");
-          $("assistantName").focus();
-          return;
+        if (data.settings && typeof data.settings === "object") {
+          return data.settings;
         }
 
-        saveButton.disabled = true;
-        saveButton.textContent = "Salvando...";
-        saveNote.textContent = "Enviando alterações ao servidor...";
+        if (data.data && typeof data.data === "object") {
+          if (data.data.settings && typeof data.data.settings === "object") {
+            return data.data.settings;
+          }
+          return data.data;
+        }
+
+        return data;
+      }
+
+      function fillSettings(settings) {
+        $("assistantName").value =
+          settings.assistantName ?? settings.assistant_name ?? "";
+
+        $("businessSegment").value =
+          settings.businessSegment ?? settings.business_segment ?? "";
+
+        const tone = settings.tone ?? settings.assistantTone ?? "profissional";
+
+        const toneSelect = $("assistantTone");
+        const toneExists = Array.from(toneSelect.options)
+          .some(option => option.value === tone);
+
+        toneSelect.value = toneExists ? tone : "profissional";
+
+        $("assistantInstructions").value =
+          settings.instructions ?? settings.customInstructions ?? "";
+      }
+
+      function collectSettings() {
+        return {
+          assistantName: $("assistantName").value.trim(),
+          businessSegment: $("businessSegment").value.trim(),
+          tone: $("assistantTone").value,
+          instructions: $("assistantInstructions").value.trim()
+        };
+      }
+
+      async function loadSettings(options = {}) {
+        const { silent = false } = options;
+        const requestId = ++settingsRequestId;
+
+        if (!silent) {
+          showMessage("settingsMessage", "Carregando configurações...", "info");
+          $("reloadSettingsButton").disabled = true;
+        }
 
         try {
           const data = await apiRequest("/api/automation/settings", {
+            method: "GET"
+          });
+
+          if (requestId !== settingsRequestId || suspended) return;
+
+          const settings = getSettingsObject(data);
+
+          lastSettings = collectSettings();
+          fillSettings(settings);
+          lastSettings = collectSettings();
+
+          showMessage(
+            "settingsMessage",
+            "Configurações carregadas.",
+            "success"
+          );
+        } catch (error) {
+          if (error.suspended || error.auth) return;
+
+          showMessage(
+            "settingsMessage",
+            "Não foi possível carregar as configurações. Verifique se a rota /api/automation/settings está disponível no servidor.",
+            "error"
+          );
+        } finally {
+          $("reloadSettingsButton").disabled = false;
+        }
+      }
+
+      async function saveSettings(event) {
+        event.preventDefault();
+
+        if (!currentToken || suspended) return;
+
+        const button = $("saveSettingsButton");
+        const settings = collectSettings();
+
+        button.disabled = true;
+        button.textContent = "Salvando...";
+        showMessage("settingsMessage", "Salvando suas configurações...", "info");
+
+        try {
+          await apiRequest("/api/automation/settings", {
             method: "PUT",
             body: JSON.stringify(settings)
           });
 
-          fillSettings(data.settings || settings);
-          showNotice("Configurações salvas com sucesso no servidor.", "success");
+          lastSettings = { ...settings };
+
+          showMessage(
+            "settingsMessage",
+            "Configurações salvas com sucesso.",
+            "success"
+          );
         } catch (error) {
-          saveNote.textContent = "Não foi possível confirmar o salvamento.";
-          showNotice(error.message, "error");
+          if (error.suspended || error.auth) return;
+
+          showMessage(
+            "settingsMessage",
+            error.message || "Não foi possível salvar as configurações.",
+            "error"
+          );
         } finally {
-          saveButton.disabled = false;
-          saveButton.innerHTML = "<span>✓</span> Salvar configurações";
+          button.disabled = false;
+          button.textContent = "Salvar configurações";
         }
-      });
+      }
 
-      $("refreshButton").addEventListener("click", refreshWhatsApp);
+      function findWhatsappObject(data) {
+        if (!data || typeof data !== "object") return {};
 
-      $("menuButton").addEventListener("click", () => {
-        $("sidebar").classList.toggle("open");
-      });
+        if (data.whatsapp && typeof data.whatsapp === "object") {
+          return data.whatsapp;
+        }
 
-      document.addEventListener("click", (event) => {
+        if (data.status && typeof data.status === "object") {
+          return data.status;
+        }
+
+        if (data.data && typeof data.data === "object") {
+          return data.data.whatsapp || data.data;
+        }
+
+        return data;
+      }
+
+      function normalizeConnected(status) {
+        if (!status || typeof status !== "object") return null;
+
+        const explicit =
+          status.connected ??
+          status.isConnected ??
+          status.is_connected;
+
+        if (typeof explicit === "boolean") return explicit;
+
+        const state = String(
+          status.status ?? status.state ?? ""
+        ).toLowerCase();
+
+        if (["connected", "conectado", "active", "ativo"].includes(state)) {
+          return true;
+        }
+
         if (
-          window.innerWidth <= 760 &&
-          !$("sidebar").contains(event.target) &&
-          !$("menuButton").contains(event.target)
+          ["disconnected", "desconectado", "inactive", "inativo", "offline"]
+            .includes(state)
         ) {
-          $("sidebar").classList.remove("open");
+          return false;
+        }
+
+        return null;
+      }
+
+      function formatCheckTime() {
+        return new Intl.DateTimeFormat("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        }).format(new Date());
+      }
+
+      function renderWhatsappStatus(data) {
+        const status = findWhatsappObject(data);
+        const connected = normalizeConnected(status);
+        const badge = $("whatsappBadge");
+
+        badge.className = "status-badge";
+
+        if (connected === true) {
+          badge.classList.add("connected");
+          badge.textContent = "Conexão ativa";
+          $("whatsappDescription").textContent =
+            "O servidor informa que a integração está conectada.";
+        } else if (connected === false) {
+          badge.classList.add("disconnected");
+          badge.textContent = "Não conectado";
+          $("whatsappDescription").textContent =
+            "A integração ainda não está conectada ou está indisponível.";
+        } else {
+          badge.textContent = "Estado não informado";
+          $("whatsappDescription").textContent =
+            "O servidor respondeu, mas não informou claramente se o WhatsApp está conectado.";
+        }
+
+        const phone =
+          status.phoneNumber ??
+          status.phone_number ??
+          status.displayPhoneNumber ??
+          status.display_phone_number ??
+          status.phone ??
+          "";
+
+        $("whatsappNumber").textContent = phone || "Não informado";
+        $("whatsappLastCheck").textContent = formatCheckTime();
+
+        const accountName =
+          status.businessName ??
+          status.business_name ??
+          status.name ??
+          "";
+
+        if (accountName) {
+          $("whatsappDescription").textContent +=
+            " Conta: " + accountName + ".";
+        }
+      }
+
+      async function checkWhatsapp() {
+        const button = $("checkWhatsappButton");
+
+        button.disabled = true;
+        button.textContent = "Consultando...";
+        showMessage("whatsappMessage", "Consultando o estado da integração...", "info");
+
+        try {
+          const data = await apiRequest("/api/automation/whatsapp/status", {
+            method: "GET"
+          });
+
+          if (suspended) return;
+
+          renderWhatsappStatus(data);
+          showMessage(
+            "whatsappMessage",
+            "Consulta concluída. O estado exibido corresponde à resposta do servidor.",
+            "success"
+          );
+        } catch (error) {
+          if (error.suspended || error.auth) return;
+
+          $("whatsappBadge").className = "status-badge error";
+          $("whatsappBadge").textContent = "Não foi possível verificar";
+          $("whatsappDescription").textContent =
+            "Não conseguimos confirmar o estado da integração.";
+
+          showMessage(
+            "whatsappMessage",
+            error.message ||
+              "Não foi possível consultar a integração. Verifique se a rota de status existe no servidor.",
+            "error"
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = "↻ Verificar conexão";
+        }
+      }
+
+      async function loadAllData() {
+        await Promise.allSettled([
+          loadSettings(),
+          checkWhatsapp()
+        ]);
+      }
+
+      async function initialize() {
+        const companyToken = sessionStorage.getItem(COMPANY_TOKEN_KEY);
+        const adminToken = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+
+        currentToken = companyToken || adminToken;
+
+        if (!currentToken) {
+          window.location.replace("./login.html");
+          return;
+        }
+
+        const savedName = sessionStorage.getItem(COMPANY_NAME_KEY);
+        if (savedName) {
+          $("accountName").textContent = savedName;
+        }
+
+        $("todayDate").textContent = new Intl.DateTimeFormat("pt-BR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        }).format(new Date());
+
+        const logo = $("brandLogo");
+
+        logo.addEventListener("load", () => {
+          logo.style.display = "block";
+        });
+
+        logo.addEventListener("error", () => {
+          logo.style.display = "none";
+        });
+
+        await verifySession(true);
+      }
+
+      $("settingsForm").addEventListener("submit", saveSettings);
+
+      $("reloadSettingsButton").addEventListener("click", async () => {
+        if (lastSettings) {
+          fillSettings(lastSettings);
+          showMessage(
+            "settingsMessage",
+            "Alterações não salvas foram descartadas.",
+            "info"
+          );
+        } else {
+          await loadSettings();
         }
       });
 
-      for (const field of form.querySelectorAll("input, select, textarea")) {
-        field.addEventListener("input", updateDirtyState);
-        field.addEventListener("change", updateDirtyState);
-      }
+      $("checkWhatsappButton").addEventListener("click", checkWhatsapp);
 
-      function updateDirtyState() {
-        if (originalSettings === null) return;
+      $("refreshButton").addEventListener("click", async () => {
+        $("refreshButton").disabled = true;
+        await verifySession(false);
 
-        const changed = JSON.stringify(currentSettings()) !== originalSettings;
-
-        saveNote.textContent = changed
-          ? "Você tem alterações que ainda não foram salvas."
-          : "Todas as alterações estão salvas.";
-      }
-
-      if (!token) {
-        window.location.href = "./login.html";
-      } else {
-        if (adminToken && !companyToken) {
-          $("adminLink").hidden = false;
+        if (!suspended && currentToken) {
+          await loadAllData();
         }
 
-        loadPage();
-      }
+        $("refreshButton").disabled = false;
+      });
+
+      $("retryAuthButton").addEventListener("click", async () => {
+        showOnly("authLoading");
+
+        currentToken =
+          sessionStorage.getItem(COMPANY_TOKEN_KEY) ||
+          sessionStorage.getItem(ADMIN_TOKEN_KEY);
+
+        if (!currentToken) {
+          logout();
+          return;
+        }
+
+        await verifySession(true);
+      });
+
+      $("suspensionLogout").addEventListener("click", logout);
+      $("errorLogoutButton").addEventListener("click", logout);
+
+      initialize();
     })();
   </script>
 </body>
 </html>
-
