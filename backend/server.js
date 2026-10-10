@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 const API_SECRET = process.env.JWT_SECRET;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const KEY_ENCRYPTION_SECRET = process.env.KEY_ENCRYPTION_SECRET;
 
 const SUSPENSION_MESSAGE =
   "Sua conta foi suspensa pelo ADM João. Entre em contato com o administrador para obter ajuda.";
@@ -43,6 +44,118 @@ const loginLimiter = rateLimit({
 let schemaPromise;
 
 // =====================================================
+// CRIPTOGRAFIA DAS CHAVES
+// =====================================================
+
+function getEncryptionKey() {
+  if (
+    !KEY_ENCRYPTION_SECRET ||
+    KEY_ENCRYPTION_SECRET.length < 32
+  ) {
+    const error = new Error(
+      "Configure KEY_ENCRYPTION_SECRET no ambiente do servidor. Use um segredo aleatório com pelo menos 32 caracteres."
+    );
+
+    error.code = "KEY_ENCRYPTION_NOT_CONFIGURED";
+    throw error;
+  }
+
+  return crypto
+    .createHash("sha256")
+    .update(KEY_ENCRYPTION_SECRET, "utf8")
+    .digest();
+}
+
+function encryptKey(value) {
+  const encryptionKey = getEncryptionKey();
+  const iv = crypto.randomBytes(12);
+
+  const cipher = crypto.createCipheriv(
+    "aes-256-gcm",
+    encryptionKey,
+    iv
+  );
+
+  const encrypted = Buffer.concat([
+    cipher.update(value, "utf8"),
+    cipher.final()
+  ]);
+
+  const authTag = cipher.getAuthTag();
+
+  return [
+    "v1",
+    iv.toString("hex"),
+    authTag.toString("hex"),
+    encrypted.toString("hex")
+  ].join(":");
+}
+
+function decryptKey(encryptedValue) {
+  if (!encryptedValue) {
+    return null;
+  }
+
+  try {
+    const parts = encryptedValue.split(":");
+
+    if (parts.length !== 4 || parts[0] !== "v1") {
+      return null;
+    }
+
+    const [, ivHex, authTagHex, encryptedHex] = parts;
+
+    if (
+      !/^[0-9a-f]+$/i.test(ivHex) ||
+      !/^[0-9a-f]+$/i.test(authTagHex) ||
+      !/^[0-9a-f]*$/i.test(encryptedHex) ||
+      ivHex.length !== 24 ||
+      authTagHex.length !== 32
+    ) {
+      return null;
+    }
+
+    const decipher = crypto.createDecipheriv(
+      "aes-256-gcm",
+      getEncryptionKey(),
+      Buffer.from(ivHex, "hex")
+    );
+
+    decipher.setAuthTag(Buffer.from(authTagHex, "hex"));
+
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(encryptedHex, "hex")),
+      decipher.final()
+    ]);
+
+    return decrypted.toString("utf8");
+  } catch {
+    return null;
+  }
+}
+
+function createAccessKey() {
+  return "MARKS-" + crypto.randomBytes(24).toString("hex");
+}
+
+function handleServerError(res, error, genericMessage) {
+  if (error.code === "KEY_ENCRYPTION_NOT_CONFIGURED") {
+    return res.status(503).json({
+      success: false,
+      code: error.code,
+      message: error.message
+    });
+  }
+
+  console.error(genericMessage, error.message);
+
+  return res.status(500).json({
+    success: false,
+    message: genericMessage
+  });
+}
+
+// =====================================================
 // BANCO DE DADOS
 // =====================================================
 
@@ -61,6 +174,12 @@ async function ensureSchema() {
           active BOOLEAN NOT NULL DEFAULT TRUE,
           created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `);
+
+      // Adiciona a coluna sem apagar os registros existentes.
+      await pool.query(`
+        ALTER TABLE companies
+        ADD COLUMN IF NOT EXISTS key_encrypted TEXT
       `);
 
       await pool.query(`
@@ -123,7 +242,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// Middleware disponível para rotas futuras que acessarem dados da empresa.
+// Middleware disponível para rotas empresariais futuras.
 async function requireActiveCompany(req, res, next) {
   try {
     if (
@@ -158,7 +277,7 @@ async function requireActiveCompany(req, res, next) {
   } catch (error) {
     console.error("Erro ao verificar empresa:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Não foi possível verificar a conta da empresa."
     });
@@ -192,7 +311,7 @@ app.get("/api/db-status", async (req, res) => {
 
     const result = await pool.query("SELECT NOW() AS server_time");
 
-    res.json({
+    return res.json({
       success: true,
       message: "Banco conectado.",
       serverTime: result.rows[0].server_time
@@ -200,7 +319,7 @@ app.get("/api/db-status", async (req, res) => {
   } catch (error) {
     console.error("Falha no teste do banco:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Não foi possível conectar ao banco."
     });
@@ -234,12 +353,15 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
       });
     }
 
-    const token = createToken({
-      role: "admin",
-      username
-    }, "8h");
+    const token = createToken(
+      {
+        role: "admin",
+        username
+      },
+      "8h"
+    );
 
-    res.json({
+    return res.json({
       success: true,
       token,
       username
@@ -247,7 +369,7 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
   } catch (error) {
     console.error("Erro no login administrativo:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Erro ao realizar login."
     });
@@ -276,19 +398,18 @@ app.post(
         });
       }
 
-      const key =
-        "MARKS-" + crypto.randomBytes(24).toString("hex");
-
+      // A chave só é criada se puder ser protegida corretamente.
+      const key = createAccessKey();
       const keyHash = await bcrypt.hash(key, 12);
+      const keyEncrypted = encryptKey(key);
 
       const result = await pool.query(
-        `INSERT INTO companies (name, key_hash)
-         VALUES ($1, $2)
+        `INSERT INTO companies (name, key_hash, key_encrypted)
+         VALUES ($1, $2, $3)
          RETURNING id, name, active, created_at`,
-        [name, keyHash]
+        [name, keyHash, keyEncrypted]
       );
 
-      // A chave original só é retornada no momento da criação.
       return res.status(201).json({
         success: true,
         message: "Empresa cadastrada com sucesso.",
@@ -303,18 +424,18 @@ app.post(
         });
       }
 
-      console.error("Erro ao criar empresa:", error.message);
-
-      res.status(500).json({
-        success: false,
-        message: "Não foi possível criar a empresa."
-      });
+      return handleServerError(
+        res,
+        error,
+        "Não foi possível criar a empresa."
+      );
     }
   }
 );
 
 // =====================================================
-// LISTAR EMPRESAS
+// LISTAR EMPRESAS COM CHAVES
+// Somente administrador autenticado.
 // =====================================================
 
 app.get(
@@ -326,22 +447,34 @@ app.get(
       await ensureSchema();
 
       const result = await pool.query(
-        `SELECT id, name, active, created_at
+        `SELECT id, name, active, created_at, key_encrypted
          FROM companies
          ORDER BY created_at DESC`
       );
 
-      res.json({
+      const companies = result.rows.map(company => {
+        const key = decryptKey(company.key_encrypted);
+
+        return {
+          id: company.id,
+          name: company.name,
+          active: company.active,
+          created_at: company.created_at,
+          key,
+          keyAvailable: Boolean(key)
+        };
+      });
+
+      return res.json({
         success: true,
-        companies: result.rows
+        companies
       });
     } catch (error) {
-      console.error("Erro ao listar empresas:", error.message);
-
-      res.status(500).json({
-        success: false,
-        message: "Não foi possível listar as empresas."
-      });
+      return handleServerError(
+        res,
+        error,
+        "Não foi possível listar as empresas."
+      );
     }
   }
 );
@@ -403,12 +536,11 @@ app.patch(
           : SUSPENSION_MESSAGE
       });
     } catch (error) {
-      console.error("Erro ao alterar status da empresa:", error.message);
-
-      res.status(500).json({
-        success: false,
-        message: "Não foi possível alterar o status da empresa."
-      });
+      return handleServerError(
+        res,
+        error,
+        "Não foi possível alterar o status da empresa."
+      );
     }
   }
 );
@@ -435,15 +567,17 @@ app.post(
         });
       }
 
-      const key = "MARKS-" + crypto.randomBytes(24).toString("hex");
+      const key = createAccessKey();
       const keyHash = await bcrypt.hash(key, 12);
+      const keyEncrypted = encryptKey(key);
 
       const result = await pool.query(
         `UPDATE companies
-         SET key_hash = $1
-         WHERE id = $2
+         SET key_hash = $1,
+             key_encrypted = $2
+         WHERE id = $3
          RETURNING id, name, active, created_at`,
-        [keyHash, id]
+        [keyHash, keyEncrypted, id]
       );
 
       if (!result.rows.length) {
@@ -456,17 +590,16 @@ app.post(
       return res.json({
         success: true,
         message:
-          "Nova chave gerada. A chave anterior foi invalidada. Copie e guarde a nova chave em local seguro.",
+          "Nova chave gerada. A chave anterior foi invalidada.",
         company: result.rows[0],
         key
       });
     } catch (error) {
-      console.error("Erro ao gerar nova chave:", error.message);
-
-      res.status(500).json({
-        success: false,
-        message: "Não foi possível gerar uma nova chave."
-      });
+      return handleServerError(
+        res,
+        error,
+        "Não foi possível gerar uma nova chave."
+      );
     }
   }
 );
@@ -496,8 +629,6 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
       });
     }
 
-    // Consulta também as empresas suspensas para informar
-    // corretamente quando uma chave válida pertence a uma conta suspensa.
     const result = await pool.query(
       `SELECT id, name, key_hash, active
        FROM companies
@@ -530,11 +661,14 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
       });
     }
 
-    const token = createToken({
-      role: "company",
-      companyId: String(company.id),
-      companyName: company.name
-    }, "12h");
+    const token = createToken(
+      {
+        role: "company",
+        companyId: String(company.id),
+        companyName: company.name
+      },
+      "12h"
+    );
 
     return res.json({
       success: true,
@@ -547,7 +681,7 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
   } catch (error) {
     console.error("Erro no login da empresa:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Não foi possível realizar o login."
     });
@@ -614,7 +748,7 @@ app.get("/api/auth/me", authenticate, async (req, res) => {
   } catch (error) {
     console.error("Erro ao validar sessão:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Não foi possível validar sua sessão."
     });
