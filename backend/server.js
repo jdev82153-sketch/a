@@ -11,9 +11,13 @@ const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 const API_SECRET = process.env.JWT_SECRET;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+const SUSPENSION_MESSAGE =
+  "Sua conta foi suspensa pelo ADM João. Entre em contato com o administrador para obter ajuda.";
 
 app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 app.use(express.json({ limit: "20kb" }));
@@ -37,6 +41,10 @@ const loginLimiter = rateLimit({
 });
 
 let schemaPromise;
+
+// =====================================================
+// BANCO DE DADOS
+// =====================================================
 
 async function ensureSchema() {
   if (!pool) {
@@ -68,6 +76,10 @@ async function ensureSchema() {
   return schemaPromise;
 }
 
+// =====================================================
+// AUTENTICAÇÃO
+// =====================================================
+
 function createToken(payload, expiresIn = "8h") {
   if (!API_SECRET) {
     throw new Error("JWT_SECRET não configurada.");
@@ -76,7 +88,6 @@ function createToken(payload, expiresIn = "8h") {
   return jwt.sign(payload, API_SECRET, { expiresIn });
 }
 
-// AUTENTICAÇÃO PELO TOKEN JWT
 function authenticate(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ")
@@ -101,7 +112,6 @@ function authenticate(req, res, next) {
   }
 }
 
-// PERMISSÃO EXCLUSIVA DO ADMINISTRADOR
 function requireAdmin(req, res, next) {
   if (req.user?.role !== "admin") {
     return res.status(403).json({
@@ -113,7 +123,52 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ROTA INICIAL
+// Middleware disponível para rotas futuras que acessarem dados da empresa.
+async function requireActiveCompany(req, res, next) {
+  try {
+    if (
+      req.user?.role !== "company" ||
+      !req.user.companyId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Acesso exclusivo de uma conta empresarial."
+      });
+    }
+
+    await ensureSchema();
+
+    const result = await pool.query(
+      `SELECT id, name, active
+       FROM companies
+       WHERE id = $1`,
+      [req.user.companyId]
+    );
+
+    if (!result.rows.length || !result.rows[0].active) {
+      return res.status(403).json({
+        success: false,
+        message: SUSPENSION_MESSAGE,
+        code: "COMPANY_SUSPENDED"
+      });
+    }
+
+    req.company = result.rows[0];
+    next();
+  } catch (error) {
+    console.error("Erro ao verificar empresa:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Não foi possível verificar a conta da empresa."
+    });
+  }
+}
+
+// =====================================================
+// ROTAS PÚBLICAS E STATUS
+// =====================================================
+
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -121,7 +176,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// STATUS DA API
 app.get("/api/status", (req, res) => {
   res.json({
     success: true,
@@ -130,7 +184,6 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-// TESTE DO BANCO DE DADOS
 app.get("/api/db-status", async (req, res) => {
   try {
     if (!pool) {
@@ -154,13 +207,17 @@ app.get("/api/db-status", async (req, res) => {
   }
 });
 
+// =====================================================
 // LOGIN DO ADMINISTRADOR
+// =====================================================
+
 app.post("/api/admin/login", loginLimiter, async (req, res) => {
   try {
     if (!ADMIN_USERNAME || !ADMIN_PASSWORD || !API_SECRET) {
       return res.status(503).json({
         success: false,
-        message: "Configure ADMIN_USERNAME, ADMIN_PASSWORD e JWT_SECRET no Render."
+        message:
+          "Configure ADMIN_USERNAME, ADMIN_PASSWORD e JWT_SECRET no Render."
       });
     }
 
@@ -182,7 +239,7 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
       username
     }, "8h");
 
-    return res.json({
+    res.json({
       success: true,
       token,
       username
@@ -190,14 +247,17 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
   } catch (error) {
     console.error("Erro no login administrativo:", error.message);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Erro ao realizar login."
     });
   }
 });
 
-// CRIAR EMPRESA E GERAR CHAVE DE ACESSO
+// =====================================================
+// CADASTRAR EMPRESA
+// =====================================================
+
 app.post(
   "/api/admin/companies",
   authenticate,
@@ -211,11 +271,14 @@ app.post(
       if (name.length < 2 || name.length > 100) {
         return res.status(400).json({
           success: false,
-          message: "O nome da empresa deve ter entre 2 e 100 caracteres."
+          message:
+            "O nome da empresa deve ter entre 2 e 100 caracteres."
         });
       }
 
-      const key = "MARKS-" + crypto.randomBytes(24).toString("hex");
+      const key =
+        "MARKS-" + crypto.randomBytes(24).toString("hex");
+
       const keyHash = await bcrypt.hash(key, 12);
 
       const result = await pool.query(
@@ -225,10 +288,10 @@ app.post(
         [name, keyHash]
       );
 
-      // A chave original só é enviada nesta resposta.
+      // A chave original só é retornada no momento da criação.
       return res.status(201).json({
         success: true,
-        message: "Empresa criada. Copie a chave e guarde-a em local seguro.",
+        message: "Empresa cadastrada com sucesso.",
         company: result.rows[0],
         key
       });
@@ -242,7 +305,7 @@ app.post(
 
       console.error("Erro ao criar empresa:", error.message);
 
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: "Não foi possível criar a empresa."
       });
@@ -250,7 +313,10 @@ app.post(
   }
 );
 
-// LISTAR EMPRESAS SEM EXPOR AS CHAVES
+// =====================================================
+// LISTAR EMPRESAS
+// =====================================================
+
 app.get(
   "/api/admin/companies",
   authenticate,
@@ -265,14 +331,14 @@ app.get(
          ORDER BY created_at DESC`
       );
 
-      return res.json({
+      res.json({
         success: true,
         companies: result.rows
       });
     } catch (error) {
       console.error("Erro ao listar empresas:", error.message);
 
-      return res.status(500).json({
+      res.status(500).json({
         success: false,
         message: "Não foi possível listar as empresas."
       });
@@ -280,7 +346,135 @@ app.get(
   }
 );
 
-// LOGIN DA EMPRESA COM NOME E CHAVE
+// =====================================================
+// SUSPENDER OU REATIVAR EMPRESA
+// PATCH /api/admin/companies/:id/status
+// =====================================================
+
+app.patch(
+  "/api/admin/companies/:id/status",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await ensureSchema();
+
+      const id = String(req.params.id || "");
+
+      if (!/^\d+$/.test(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Identificador de empresa inválido."
+        });
+      }
+
+      if (typeof req.body.active !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: "Informe o status da empresa."
+        });
+      }
+
+      const result = await pool.query(
+        `UPDATE companies
+         SET active = $1
+         WHERE id = $2
+         RETURNING id, name, active, created_at`,
+        [req.body.active, id]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          message: "Empresa não encontrada."
+        });
+      }
+
+      const company = result.rows[0];
+
+      return res.json({
+        success: true,
+        message: company.active
+          ? "Empresa reativada com sucesso."
+          : "Empresa suspensa com sucesso.",
+        company,
+        suspensionMessage: company.active
+          ? null
+          : SUSPENSION_MESSAGE
+      });
+    } catch (error) {
+      console.error("Erro ao alterar status da empresa:", error.message);
+
+      res.status(500).json({
+        success: false,
+        message: "Não foi possível alterar o status da empresa."
+      });
+    }
+  }
+);
+
+// =====================================================
+// GERAR NOVA CHAVE E INVALIDAR A ANTERIOR
+// POST /api/admin/companies/:id/rotate-key
+// =====================================================
+
+app.post(
+  "/api/admin/companies/:id/rotate-key",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await ensureSchema();
+
+      const id = String(req.params.id || "");
+
+      if (!/^\d+$/.test(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Identificador de empresa inválido."
+        });
+      }
+
+      const key = "MARKS-" + crypto.randomBytes(24).toString("hex");
+      const keyHash = await bcrypt.hash(key, 12);
+
+      const result = await pool.query(
+        `UPDATE companies
+         SET key_hash = $1
+         WHERE id = $2
+         RETURNING id, name, active, created_at`,
+        [keyHash, id]
+      );
+
+      if (!result.rows.length) {
+        return res.status(404).json({
+          success: false,
+          message: "Empresa não encontrada."
+        });
+      }
+
+      return res.json({
+        success: true,
+        message:
+          "Nova chave gerada. A chave anterior foi invalidada. Copie e guarde a nova chave em local seguro.",
+        company: result.rows[0],
+        key
+      });
+    } catch (error) {
+      console.error("Erro ao gerar nova chave:", error.message);
+
+      res.status(500).json({
+        success: false,
+        message: "Não foi possível gerar uma nova chave."
+      });
+    }
+  }
+);
+
+// =====================================================
+// LOGIN DA EMPRESA
+// =====================================================
+
 app.post("/api/company/login", loginLimiter, async (req, res) => {
   try {
     await ensureSchema();
@@ -302,11 +496,12 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
       });
     }
 
+    // Consulta também as empresas suspensas para informar
+    // corretamente quando uma chave válida pertence a uma conta suspensa.
     const result = await pool.query(
-      `SELECT id, name, key_hash
+      `SELECT id, name, key_hash, active
        FROM companies
-       WHERE LOWER(name) = LOWER($1)
-         AND active = TRUE`,
+       WHERE LOWER(name) = LOWER($1)`,
       [name]
     );
 
@@ -327,6 +522,14 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
       });
     }
 
+    if (!company.active) {
+      return res.status(403).json({
+        success: false,
+        code: "COMPANY_SUSPENDED",
+        message: SUSPENSION_MESSAGE
+      });
+    }
+
     const token = createToken({
       role: "company",
       companyId: String(company.id),
@@ -344,17 +547,20 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
   } catch (error) {
     console.error("Erro no login da empresa:", error.message);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Não foi possível realizar o login."
     });
   }
 });
 
-// VALIDAR SESSÃO E CONFERIR SE A EMPRESA ESTÁ ATIVA
+// =====================================================
+// VALIDAR SESSÃO ATUAL
+// GET /api/auth/me
+// =====================================================
+
 app.get("/api/auth/me", authenticate, async (req, res) => {
   try {
-    // O administrador também pode validar sua sessão.
     if (req.user.role === "admin") {
       return res.json({
         success: true,
@@ -367,8 +573,10 @@ app.get("/api/auth/me", authenticate, async (req, res) => {
       });
     }
 
-    // Rejeita tokens que não pertençam a uma empresa válida.
-    if (req.user.role !== "company" || !req.user.companyId) {
+    if (
+      req.user.role !== "company" ||
+      !req.user.companyId
+    ) {
       return res.status(403).json({
         success: false,
         message: "Acesso não autorizado."
@@ -377,7 +585,6 @@ app.get("/api/auth/me", authenticate, async (req, res) => {
 
     await ensureSchema();
 
-    // Confere o estado atual da empresa diretamente no banco.
     const result = await pool.query(
       `SELECT id, name, active
        FROM companies
@@ -388,7 +595,8 @@ app.get("/api/auth/me", authenticate, async (req, res) => {
     if (!result.rows.length || !result.rows[0].active) {
       return res.status(403).json({
         success: false,
-        message: "Sua conta está suspensa ou não está mais disponível. Entre em contato com o administrador."
+        code: "COMPANY_SUSPENDED",
+        message: SUSPENSION_MESSAGE
       });
     }
 
@@ -406,20 +614,22 @@ app.get("/api/auth/me", authenticate, async (req, res) => {
   } catch (error) {
     console.error("Erro ao validar sessão:", error.message);
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Não foi possível validar sua sessão."
     });
   }
 });
 
-// INICIALIZAÇÃO DO SERVIDOR
+// =====================================================
+// INICIALIZAÇÃO
+// =====================================================
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Agência Marks API rodando na porta ${PORT}`);
   console.log("PostgreSQL configurado:", Boolean(pool));
 });
 
-// ENCERRAMENTO GRACIOSO
 process.on("SIGTERM", async () => {
   if (pool) {
     await pool.end().catch(() => {});
