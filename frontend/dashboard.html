@@ -2,711 +2,975 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101010">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
   <title>Dashboard | Agência Marks</title>
 
-  <link rel="stylesheet" href="./CSS/style.css">
-
   <style>
-    /*
-      Dashboard atualizado.
-      A sidebar mantém o modelo lateral tradicional,
-      sem substituir a estrutura por outro tipo de menu.
-    */
+    :root {
+      --bg: #090909;
+      --panel: #111111;
+      --panel-hover: #171717;
+      --border: #282828;
+      --text: #f5f5f5;
+      --muted: #999999;
+      --orange: #ff6a00;
+      --orange-light: #ffad7a;
+      --sidebar-width: 245px;
+    }
 
-    .dashboard-page {
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
       min-height: 100vh;
-      background: #0c0c0d;
-      color: #f5f5f5;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
     }
 
-    .dashboard-content {
-      min-width: 0;
-      padding: 30px;
+    button, a {
+      font: inherit;
     }
 
-    .dashboard-header {
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      width: var(--sidebar-width);
+      padding: 25px 16px 18px;
+      background: #0c0c0c;
+      border-right: 1px solid var(--border);
+    }
+
+    .brand {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 18px;
-      margin-bottom: 28px;
+      gap: 11px;
+      min-height: 43px;
+      margin: 0 5px 30px;
     }
 
-    .dashboard-header h1 {
-      margin: 0;
-      font-size: 29px;
-      font-weight: 750;
-      letter-spacing: -0.8px;
+    .brand-logo {
+      display: none;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      object-fit: contain;
+      border-radius: 50%;
     }
 
-    .dashboard-header p {
-      margin: 8px 0 0;
-      color: #99999f;
-      font-size: 13px;
-    }
-
-    .dashboard-header-date {
-      padding: 10px 14px;
-      border: 1px solid #2b2b2f;
-      border-radius: 9px;
-      background: #141416;
-      color: #b9b9c0;
-      font-size: 12px;
-    }
-
-    .dashboard-hero {
-      position: relative;
-      overflow: hidden;
-      padding: 27px;
-      margin-bottom: 28px;
-      border: 1px solid #3b291d;
-      border-radius: 15px;
-      background:
-        radial-gradient(
-          circle at 90% 20%,
-          rgba(255, 106, 0, .15),
-          transparent 35%
-        ),
-        linear-gradient(120deg, #1b1714, #151516);
-    }
-
-    .dashboard-hero-label {
-      color: #ff8739;
-      font-size: 10px;
+    .brand-name {
+      font-size: 18px;
       font-weight: 800;
-      letter-spacing: 1.8px;
+      letter-spacing: -.7px;
+      white-space: nowrap;
+    }
+
+    .brand-name span {
+      color: var(--orange);
+    }
+
+    .brand-description {
+      margin: -20px 5px 28px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .nav-label {
+      margin: 0 10px 11px;
+      color: #777;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
       text-transform: uppercase;
     }
 
-    .dashboard-hero h2 {
-      position: relative;
-      z-index: 1;
-      max-width: 620px;
-      margin: 12px 0;
-      font-size: clamp(22px, 3vw, 29px);
-      line-height: 1.3;
-      letter-spacing: -.6px;
+    .nav {
+      display: grid;
+      gap: 5px;
     }
 
-    .dashboard-hero p {
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 43px;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      color: #aaa;
+      font-size: 13px;
+      transition: .2s ease;
+    }
+
+    .nav-link:hover {
+      background: #171717;
+      color: white;
+    }
+
+    .nav-link.active {
+      background: rgba(255, 106, 0, .09);
+      border-color: rgba(255, 106, 0, .2);
+      color: var(--orange-light);
+    }
+
+    .nav-icon {
+      display: grid;
+      width: 20px;
+      flex: 0 0 20px;
+      place-items: center;
+      font-size: 16px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .account-card {
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #111;
+    }
+
+    .account-label {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .account-name {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .account-status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #36c879;
+    }
+
+    .sidebar-footer {
+      margin: 14px 2px 0;
+      color: #666;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    /* MAIN */
+
+    .main {
+      min-height: 100vh;
+      margin-left: var(--sidebar-width);
+      padding: 30px 34px 45px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .breadcrumb {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .breadcrumb span {
+      color: var(--orange);
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(25px, 3vw, 33px);
+      letter-spacing: -1.2px;
+    }
+
+    .page-subtitle {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date-label {
+      color: #999;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #151515;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      transition: .2s ease;
+    }
+
+    .button:hover {
+      background: #222;
+    }
+
+    .button-primary {
+      border-color: var(--orange);
+      background: var(--orange);
+      color: white;
+    }
+
+    .button-primary:hover {
+      background: #ff8126;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 29px 0 15px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.4px;
+    }
+
+    .section-heading p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* WELCOME */
+
+    .welcome {
+      position: relative;
+      overflow: hidden;
+      padding: 27px;
+      border: 1px solid #333;
+      border-radius: 15px;
+      background: linear-gradient(115deg, #151515, #101010);
+    }
+
+    .welcome::after {
+      position: absolute;
+      top: -90px;
+      right: -70px;
+      width: 230px;
+      height: 230px;
+      border: 1px solid rgba(255, 106, 0, .15);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 28px rgba(255, 106, 0, .025),
+        0 0 0 58px rgba(255, 106, 0, .02);
+      content: "";
+      pointer-events: none;
+    }
+
+    .welcome-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 15px;
+      color: var(--orange-light);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    .welcome h2 {
       position: relative;
       z-index: 1;
-      max-width: 600px;
+      max-width: 540px;
       margin: 0;
-      color: #aaa6a3;
+      font-size: clamp(23px, 3vw, 30px);
+      letter-spacing: -1px;
+      line-height: 1.25;
+    }
+
+    .welcome p {
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      margin: 12px 0 20px;
+      color: #aaa;
       font-size: 13px;
       line-height: 1.8;
     }
 
-    .dashboard-section-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 30px 0 16px;
+    .welcome .button {
+      position: relative;
+      z-index: 1;
     }
 
-    .dashboard-section-heading h2 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 750;
-    }
+    /* STATISTICS */
 
-    .dashboard-section-heading span {
-      color: #77777e;
-      font-size: 11px;
-    }
-
-    .dashboard-stats {
+    .stats {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
     }
 
-    .dashboard-stat {
+    .stat-card {
       min-width: 0;
-      padding: 20px;
-      border: 1px solid #29292d;
+      padding: 19px;
+      border: 1px solid var(--border);
       border-radius: 12px;
-      background: #141416;
-      transition: border-color .2s, transform .2s;
+      background: var(--panel);
     }
 
-    .dashboard-stat:hover {
-      transform: translateY(-2px);
-      border-color: #49311f;
-    }
-
-    .dashboard-stat-top {
+    .stat-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .dashboard-stat-label {
-      color: #a6a6ad;
+    .stat-label {
+      color: #aaa;
       font-size: 12px;
     }
 
-    .dashboard-stat-icon {
+    .stat-icon {
       display: grid;
-      width: 35px;
-      height: 35px;
-      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
       place-items: center;
-      border: 1px solid #3c2a1d;
+      border: 1px solid rgba(255, 106, 0, .2);
       border-radius: 9px;
-      background: #25190f;
-      color: #ff7924;
-      font-size: 17px;
+      background: rgba(255, 106, 0, .08);
+      color: var(--orange-light);
+      font-size: 16px;
     }
 
-    .dashboard-stat-value {
+    .stat-value {
       margin-top: 20px;
-      font-size: 28px;
+      font-size: 27px;
       font-weight: 800;
       letter-spacing: -1px;
     }
 
-    .dashboard-stat-description {
+    .stat-description {
       margin-top: 7px;
-      color: #77777e;
+      color: #777;
       font-size: 11px;
       line-height: 1.6;
     }
 
-    .dashboard-lower-grid {
+    /* QUICK ACCESS */
+
+    .quick-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
-      gap: 18px;
-      margin-top: 24px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
-    .dashboard-box {
-      min-width: 0;
-      padding: 22px;
-      border: 1px solid #29292d;
-      border-radius: 13px;
-      background: #141416;
-    }
-
-    .dashboard-box h3 {
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .dashboard-box-description {
-      margin: 7px 0 20px;
-      color: #85858d;
-      font-size: 11px;
-      line-height: 1.7;
-    }
-
-    .dashboard-shortcuts {
-      display: grid;
-      gap: 10px;
-    }
-
-    .dashboard-shortcut {
+    .quick-card {
       display: flex;
-      align-items: center;
-      gap: 13px;
-      padding: 13px;
-      border: 1px solid #2b2b2f;
-      border-radius: 10px;
-      color: #f5f5f5;
-      text-decoration: none;
-      transition: background .2s, border-color .2s;
+      align-items: flex-start;
+      gap: 15px;
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      transition: border-color .2s, background .2s, transform .2s;
     }
 
-    .dashboard-shortcut:hover {
-      border-color: #67401f;
-      background: #1c1713;
+    .quick-card:hover {
+      transform: translateY(-2px);
+      border-color: #4a3326;
+      background: var(--panel-hover);
     }
 
-    .dashboard-shortcut-icon {
+    .quick-icon {
       display: grid;
-      width: 39px;
-      height: 39px;
-      flex-shrink: 0;
+      width: 43px;
+      height: 43px;
+      flex: 0 0 43px;
       place-items: center;
-      border-radius: 10px;
-      background: #25190f;
-      color: #ff7924;
-      font-size: 17px;
+      border: 1px solid #343434;
+      border-radius: 11px;
+      background: #191919;
+      font-size: 20px;
     }
 
-    .dashboard-shortcut-text {
+    .quick-content {
       min-width: 0;
       flex: 1;
     }
 
-    .dashboard-shortcut-text strong {
-      display: block;
+    .quick-content h3 {
+      margin: 2px 0 8px;
+      font-size: 14px;
+    }
+
+    .quick-content p {
+      margin: 0;
+      color: var(--muted);
       font-size: 12px;
+      line-height: 1.7;
     }
 
-    .dashboard-shortcut-text span {
-      display: block;
-      margin-top: 4px;
-      color: #898990;
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .dashboard-shortcut-arrow {
-      color: #77777e;
+    .quick-arrow {
+      margin-left: auto;
+      color: #777;
       font-size: 18px;
     }
 
-    .dashboard-empty-state {
-      padding: 24px 14px;
-      border: 1px dashed #303034;
-      border-radius: 10px;
-      color: #85858d;
-      font-size: 12px;
-      line-height: 1.8;
-      text-align: center;
+    /* ACTIVITY */
+
+    .activity-panel {
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
     }
 
-    .dashboard-footer {
+    .activity-item {
       display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      align-items: flex-start;
       gap: 12px;
-      padding-top: 23px;
-      margin-top: 30px;
-      border-top: 1px solid #262628;
-      color: #77777e;
-      font-size: 11px;
+      padding: 14px 0;
+      border-bottom: 1px solid #252525;
     }
 
-    .dashboard-footer strong {
-      color: #b9b9c0;
+    .activity-item:first-child {
+      padding-top: 0;
     }
 
-    .dashboard-toast {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      z-index: 999;
-      max-width: calc(100vw - 40px);
-      padding: 13px 17px;
-      border: 1px solid #3a3a3f;
-      border-radius: 10px;
-      background: #1b1b1e;
-      color: #fff;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, .3);
+    .activity-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .activity-bullet {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      place-items: center;
+      border-radius: 9px;
+      background: #1c1c1c;
+      color: var(--orange-light);
+    }
+
+    .activity-item strong {
+      display: block;
+      margin: 1px 0 5px;
       font-size: 12px;
     }
 
-    .dashboard-hidden {
+    .activity-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .notice {
+      margin-top: 16px;
+      color: #777;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .hidden {
       display: none !important;
     }
 
-    @media (max-width: 1100px) {
-      .dashboard-stats {
+    .message {
+      margin-top: 12px;
+      color: var(--orange-light);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* RESPONSIVE */
+
+    .mobile-top {
+      display: none;
+    }
+
+    @media (max-width: 1050px) {
+      .main {
+        padding: 25px 23px 35px;
+      }
+
+      .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .dashboard-lower-grid {
-        grid-template-columns: 1fr;
+      .stat-card:last-child {
+        grid-column: 1 / -1;
       }
     }
 
-    @media (max-width: 600px) {
-      .dashboard-content {
-        padding: 20px 14px;
+    @media (max-width: 760px) {
+      .sidebar {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: auto;
+        padding: 17px 16px 13px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
       }
 
-      .dashboard-header h1 {
-        font-size: 25px;
+      .brand {
+        margin: 0 2px 17px;
       }
 
-      .dashboard-header-date {
+      .brand-description,
+      .sidebar-bottom,
+      .nav-label {
         display: none;
       }
 
-      .dashboard-hero {
-        padding: 21px;
+      .nav {
+        display: flex;
+        gap: 7px;
+        overflow-x: auto;
+        padding-bottom: 2px;
       }
 
-      .dashboard-stat {
-        padding: 14px;
+      .nav-link {
+        min-height: 38px;
+        flex: 0 0 auto;
+        padding: 9px 11px;
+        font-size: 12px;
       }
 
-      .dashboard-stat-value {
-        font-size: 24px;
+      .main {
+        margin-left: 0;
+        padding: 23px 16px 35px;
       }
 
-      .dashboard-box {
-        padding: 16px;
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+
+      .date-label {
+        display: none;
+      }
+
+      .welcome {
+        padding: 22px;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 360px) {
-      .dashboard-stats {
+    @media (max-width: 420px) {
+      .stats {
         grid-template-columns: 1fr;
+      }
+
+      .stat-card:last-child {
+        grid-column: auto;
+      }
+
+      .top-actions .button {
+        padding: 10px;
+      }
+
+      .quick-card {
+        padding: 16px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="dashboard-page">
-
-    <!-- SIDEBAR:
-         Mantemos o menu lateral em sua estrutura tradicional.
-         Os links continuam organizados verticalmente. -->
+  <div class="app">
     <aside class="sidebar">
-
-      <a class="sidebar-brand" href="./dashboard.html">
+      <a class="brand" href="./index.html" aria-label="Agência Marks">
         <img
-          class="sidebar-logo"
+          class="brand-logo"
+          id="brandLogo"
           src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
-          alt="Agência Marks"
-          onerror="this.style.display='none'"
+          alt="Logo Agência Marks"
         >
-
-        <div class="sidebar-brand-text">
-          <strong>Agência Marks</strong>
-          <span>Inteligência para negócios</span>
-        </div>
+        <span class="brand-name">AGÊNCIA <span>MARKS</span></span>
       </a>
 
-      <div class="sidebar-section-title">MENU PRINCIPAL</div>
+      <p class="brand-description">
+        Mais inteligência. Menos trabalho manual.
+      </p>
 
-      <nav class="sidebar-nav" aria-label="Menu principal">
+      <p class="nav-label">Menu principal</p>
 
-        <a class="sidebar-link active" href="./dashboard.html">
-          <span class="sidebar-icon">▦</span>
-          <span>Dashboard</span>
+      <nav class="nav" aria-label="Navegação principal">
+        <a class="nav-link active" href="./dashboard.html">
+          <span class="nav-icon">⌂</span>
+          Visão geral
         </a>
 
-        <a class="sidebar-link" href="./automacoes.html">
-          <span class="sidebar-icon">⌘</span>
-          <span>Automações</span>
+        <a class="nav-link" href="./automacoes.html">
+          <span class="nav-icon">⟳</span>
+          Automações
         </a>
 
-        <a class="sidebar-link" href="./vendas.html">
-          <span class="sidebar-icon">↗</span>
-          <span>Inteligência de vendas</span>
+        <a class="nav-link" href="./vendas.html">
+          <span class="nav-icon">↗</span>
+          Inteligência de vendas
         </a>
 
-        <a class="sidebar-link" href="./relatorios.html">
-          <span class="sidebar-icon">▤</span>
-          <span>Relatórios</span>
+        <a class="nav-link" href="./relatorios.html">
+          <span class="nav-icon">▤</span>
+          Relatórios
         </a>
 
-        <a
-          class="sidebar-link dashboard-hidden"
-          href="./admin.html"
-          id="adminNav"
-        >
-          <span class="sidebar-icon">⚙</span>
-          <span>Administração</span>
+        <a class="nav-link hidden" id="adminLink" href="./admin.html">
+          <span class="nav-icon">⚙</span>
+          Administração
         </a>
-
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="sidebar-account">
-          <span class="sidebar-account-label">CONTA CONECTADA</span>
-          <strong id="activityCompanyName">Carregando conta...</strong>
-          <span class="sidebar-connection">
-            <span class="sidebar-connection-dot"></span>
-            <span id="apiStatusText">Verificando conexão</span>
-          </span>
+        <div class="account-card">
+          <div class="account-label">Conta conectada</div>
+          <div class="account-name" id="accountName">Carregando conta...</div>
+          <div class="account-status">
+            <span class="status-dot"></span>
+            Sessão ativa
+          </div>
         </div>
-      </div>
 
+        <p class="sidebar-footer">
+          Agência Marks · Plataforma de soluções digitais
+        </p>
+      </div>
     </aside>
 
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="dashboard-content">
-
-      <header class="dashboard-header">
+    <main class="main">
+      <header class="topbar">
         <div>
-          <h1>Dashboard</h1>
-          <p>Bem-vindo à sua central de inteligência comercial.</p>
+          <div class="breadcrumb">Plataforma <span>/</span> Visão geral</div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">
+            Acompanhe sua operação e acesse suas ferramentas.
+          </p>
         </div>
 
-        <div class="dashboard-header-date" id="todayDate">
-          Carregando data...
+        <div class="top-actions">
+          <span class="date-label" id="todayDate"></span>
+          <button class="button" id="refreshButton" type="button">
+            ↻ Atualizar
+          </button>
         </div>
       </header>
 
-      <section class="dashboard-hero">
-        <div class="dashboard-hero-label">AGÊNCIA MARKS · WORKSPACE</div>
-
-        <h2>Mais inteligência. Menos trabalho manual.</h2>
-
+      <section class="welcome">
+        <div class="welcome-tag">● SUA OPERAÇÃO, MAIS INTELIGENTE</div>
+        <h2>Mais inteligência.<br>Menos trabalho manual.</h2>
         <p>
-          Acesse suas ferramentas, acompanhe sua operação comercial e
-          organize os processos que ajudam seu negócio a crescer.
+          Centralize suas ferramentas, organize seus processos e encontre
+          novas oportunidades para tornar sua operação mais eficiente.
+        </p>
+        <a class="button button-primary" href="./automacoes.html">
+          Explorar automações <span aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <section aria-labelledby="overviewTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="overviewTitle">Visão geral</h2>
+            <p>Resumo da sua plataforma.</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Automações</span>
+              <span class="stat-icon">⟳</span>
+            </div>
+            <div class="stat-value" id="automationCount">—</div>
+            <div class="stat-description">
+              Quantidade informada pela plataforma
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Oportunidades de venda</span>
+              <span class="stat-icon">↗</span>
+            </div>
+            <div class="stat-value" id="salesCount">—</div>
+            <div class="stat-description">
+              Oportunidades registradas no sistema
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Relatórios</span>
+              <span class="stat-icon">▤</span>
+            </div>
+            <div class="stat-value" id="reportCount">—</div>
+            <div class="stat-description">
+              Relatórios disponíveis para consulta
+            </div>
+          </article>
+        </div>
+
+        <p class="notice" id="statsNotice">
+          Os indicadores serão preenchidos quando houver dados disponíveis
+          nas ferramentas da plataforma.
         </p>
       </section>
 
-      <div class="dashboard-section-heading">
-        <h2>Visão geral</h2>
-        <span>Dados da sua operação</span>
-      </div>
-
-      <section class="dashboard-stats">
-
-        <article class="dashboard-stat">
-          <div class="dashboard-stat-top">
-            <span class="dashboard-stat-label">Automações</span>
-            <span class="dashboard-stat-icon">⌘</span>
+      <section aria-labelledby="toolsTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="toolsTitle">Suas ferramentas</h2>
+            <p>Acesse rapidamente as principais funcionalidades.</p>
           </div>
+        </div>
 
-          <div class="dashboard-stat-value" id="metricAutomations">—</div>
+        <div class="quick-grid">
+          <a class="quick-card" href="./automacoes.html">
+            <span class="quick-icon">⟳</span>
+            <span class="quick-content">
+              <h3>Automações inteligentes</h3>
+              <p>
+                Organize tarefas repetitivas e conheça as possibilidades
+                de automação da sua operação.
+              </p>
+            </span>
+            <span class="quick-arrow">→</span>
+          </a>
 
-          <div class="dashboard-stat-description">
-            Automações cadastradas no sistema.
-          </div>
-        </article>
+          <a class="quick-card" href="./vendas.html">
+            <span class="quick-icon">↗</span>
+            <span class="quick-content">
+              <h3>Inteligência de vendas</h3>
+              <p>
+                Organize oportunidades comerciais e acompanhe seus
+                processos de prospecção.
+              </p>
+            </span>
+            <span class="quick-arrow">→</span>
+          </a>
 
-        <article class="dashboard-stat">
-          <div class="dashboard-stat-top">
-            <span class="dashboard-stat-label">Leads</span>
-            <span class="dashboard-stat-icon">◎</span>
-          </div>
+          <a class="quick-card" href="./relatorios.html">
+            <span class="quick-icon">▤</span>
+            <span class="quick-content">
+              <h3>Relatórios</h3>
+              <p>
+                Consulte indicadores e acompanhe os resultados conforme
+                os dados forem registrados.
+              </p>
+            </span>
+            <span class="quick-arrow">→</span>
+          </a>
 
-          <div class="dashboard-stat-value" id="metricLeads">—</div>
-
-          <div class="dashboard-stat-description">
-            Contatos registrados na plataforma.
-          </div>
-        </article>
-
-        <article class="dashboard-stat">
-          <div class="dashboard-stat-top">
-            <span class="dashboard-stat-label">Oportunidades</span>
-            <span class="dashboard-stat-icon">↗</span>
-          </div>
-
-          <div class="dashboard-stat-value" id="metricOpportunities">—</div>
-
-          <div class="dashboard-stat-description">
-            Oportunidades comerciais registradas.
-          </div>
-        </article>
-
-        <article class="dashboard-stat">
-          <div class="dashboard-stat-top">
-            <span class="dashboard-stat-label">API</span>
-            <span class="dashboard-stat-icon">⌁</span>
-          </div>
-
-          <div class="dashboard-stat-value" id="apiStatus">...</div>
-
-          <div class="dashboard-stat-description">
-            Estado da conexão com o servidor.
-          </div>
-        </article>
-
+          <a class="quick-card hidden" id="adminCard" href="./admin.html">
+            <span class="quick-icon">⚙</span>
+            <span class="quick-content">
+              <h3>Administração</h3>
+              <p>
+                Gerencie as empresas cadastradas e as permissões
+                administrativas da plataforma.
+              </p>
+            </span>
+            <span class="quick-arrow">→</span>
+          </a>
+        </div>
       </section>
 
-      <div class="dashboard-lower-grid">
-
-        <section class="dashboard-box">
-          <h3>Acesso rápido</h3>
-
-          <p class="dashboard-box-description">
-            Entre diretamente nas principais ferramentas da plataforma.
-          </p>
-
-          <div class="dashboard-shortcuts">
-
-            <a class="dashboard-shortcut" href="./automacoes.html">
-              <span class="dashboard-shortcut-icon">⌘</span>
-
-              <span class="dashboard-shortcut-text">
-                <strong>Automações inteligentes</strong>
-                <span>Gerencie seus processos automatizados.</span>
-              </span>
-
-              <span class="dashboard-shortcut-arrow">›</span>
-            </a>
-
-            <a class="dashboard-shortcut" href="./vendas.html">
-              <span class="dashboard-shortcut-icon">↗</span>
-
-              <span class="dashboard-shortcut-text">
-                <strong>Inteligência de vendas</strong>
-                <span>Organize seus leads e oportunidades.</span>
-              </span>
-
-              <span class="dashboard-shortcut-arrow">›</span>
-            </a>
-
-            <a class="dashboard-shortcut" href="./relatorios.html">
-              <span class="dashboard-shortcut-icon">▤</span>
-
-              <span class="dashboard-shortcut-text">
-                <strong>Relatórios e resultados</strong>
-                <span>Consulte os dados da sua operação.</span>
-              </span>
-
-              <span class="dashboard-shortcut-arrow">›</span>
-            </a>
-
+      <section aria-labelledby="activityTitle">
+        <div class="section-heading">
+          <div>
+            <h2 id="activityTitle">Atividade da plataforma</h2>
+            <p>Informações úteis sobre sua conta.</p>
           </div>
-        </section>
+        </div>
 
-        <section class="dashboard-box">
-          <h3>Atividade recente</h3>
-
-          <p class="dashboard-box-description">
-            Acompanhe aqui as atividades registradas na plataforma.
-          </p>
-
-          <div class="dashboard-empty-state" id="activityEmpty">
-            Nenhuma atividade registrada para exibir.
+        <div class="activity-panel">
+          <div class="activity-item">
+            <span class="activity-bullet">✓</span>
+            <div>
+              <strong>Dashboard disponível</strong>
+              <p>Você está na área principal da Agência Marks.</p>
+            </div>
           </div>
 
-          <div id="activityList"></div>
-        </section>
+          <div class="activity-item">
+            <span class="activity-bullet">⟳</span>
+            <div>
+              <strong>Ferramentas da plataforma</strong>
+              <p>
+                Acesse as seções acima para utilizar as funcionalidades
+                disponíveis na sua conta.
+              </p>
+            </div>
+          </div>
 
-      </div>
+          <div class="activity-item">
+            <span class="activity-bullet">i</span>
+            <div>
+              <strong>Indicadores e relatórios</strong>
+              <p>
+                Os números dependem da integração das ferramentas com
+                os dados reais da plataforma.
+              </p>
+            </div>
+          </div>
 
-      <footer class="dashboard-footer">
-        <span>© <span id="year"></span> <strong>Agência Marks</strong></span>
-        <span>Automação inteligente para negócios.</span>
-      </footer>
-
+          <p class="message" id="dashboardMessage" role="status"></p>
+        </div>
+      </section>
     </main>
   </div>
 
-  <div
-    class="dashboard-toast dashboard-hidden"
-    id="dashboardToast"
-    role="status"
-    aria-live="polite"
-  ></div>
-
   <script>
-    const API_BASE = "https://agencia-marks.onrender.com";
+    (() => {
+      "use strict";
 
-    const $ = (id) => document.getElementById(id);
+      const API = "https://agencia-marks.onrender.com";
+      const COMPANY_TOKEN_KEY = "marks_company_token";
+      const ADMIN_TOKEN_KEY = "marks_admin_token";
+      const $ = id => document.getElementById(id);
 
-    function showToast(message) {
-      const toast = $("dashboardToast");
-      if (!toast) return;
+      const companyToken = sessionStorage.getItem(COMPANY_TOKEN_KEY);
+      const adminToken = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+      const token = companyToken || adminToken;
 
-      toast.textContent = message;
-      toast.classList.remove("dashboard-hidden");
-
-      clearTimeout(showToast.timer);
-
-      showToast.timer = setTimeout(() => {
-        toast.classList.add("dashboard-hidden");
-      }, 3500);
-    }
-
-    function setCompanyName(name) {
-      $("activityCompanyName").textContent = name || "Minha conta";
-    }
-
-    function updateDate() {
-      const now = new Date();
-
-      $("todayDate").textContent = now.toLocaleDateString("pt-BR", {
+      $("todayDate").textContent = new Intl.DateTimeFormat("pt-BR", {
         day: "2-digit",
-        month: "long",
+        month: "short",
         year: "numeric"
+      }).format(new Date());
+
+      const savedName = sessionStorage.getItem("marks_company_name");
+
+      $("accountName").textContent =
+        savedName || (adminToken && !companyToken
+          ? "Administrador"
+          : "Sua empresa");
+
+      if (adminToken) {
+        $("adminLink").classList.remove("hidden");
+        $("adminCard").classList.remove("hidden");
+      }
+
+      // Mantém a marca discreta caso a imagem exista.
+      const logo = $("brandLogo");
+      logo.addEventListener("load", () => {
+        logo.style.display = "block";
+      });
+      logo.addEventListener("error", () => {
+        logo.style.display = "none";
       });
 
-      $("year").textContent = now.getFullYear();
-    }
+      async function refreshDashboard() {
+        $("refreshButton").disabled = true;
+        $("dashboardMessage").textContent = "Atualizando informações...";
 
-    function setApiStatus(online, message) {
-      $("apiStatus").textContent = online ? "Online" : "Offline";
-      $("apiStatusText").textContent = message;
-    }
+        try {
+          // Este endpoint valida a sessão, se estiver disponível na API.
+          // Os indicadores permanecem neutros até existir uma fonte real
+          // de dados para cada ferramenta.
+          if (token) {
+            const response = await fetch(API + "/api/auth/me", {
+              headers: {
+                Authorization: "Bearer " + token
+              }
+            });
 
-    function getStoredToken() {
-      return (
-        sessionStorage.getItem("marks_company_token") ||
-        sessionStorage.getItem("marks_admin_token") ||
-        localStorage.getItem("marks_company_token") ||
-        localStorage.getItem("marks_admin_token")
-      );
-    }
+            if (response.status === 401 || response.status === 403) {
+              sessionStorage.removeItem(COMPANY_TOKEN_KEY);
+              sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+              $("dashboardMessage").textContent =
+                "Sua sessão pode ter expirado. Entre novamente para continuar.";
+              return;
+            }
 
-    async function checkApiConnection() {
-      try {
-        const response = await fetch(`${API_BASE}/`);
+            if (response.ok) {
+              const data = await response.json().catch(() => ({}));
+              const user = data.company || data.user || data;
 
-        if (!response.ok) {
-          throw new Error("Falha na API");
-        }
-
-        setApiStatus(true, "Servidor conectado");
-      } catch (error) {
-        setApiStatus(false, "Servidor indisponível");
-      }
-    }
-
-    async function initializeDashboard() {
-      updateDate();
-
-      const companyName =
-        sessionStorage.getItem("marks_company_name") ||
-        localStorage.getItem("marks_company_name");
-
-      setCompanyName(companyName || "Conta conectada");
-
-      await checkApiConnection();
-
-      const token = getStoredToken();
-
-      if (!token) {
-        showToast("Sessão não encontrada. Verifique seu login.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_BASE}/api/auth/me`, {
-          method: "GET",
-          headers: {
-            "Accept": "application/json",
-            "Authorization": `Bearer ${token}`
+              if (user && typeof user.name === "string" && user.name.trim()) {
+                $("accountName").textContent = user.name;
+                sessionStorage.setItem("marks_company_name", user.name);
+              }
+            }
           }
-        });
 
-        if (!response.ok) {
-          throw new Error("Não foi possível validar a sessão.");
+          $("dashboardMessage").textContent =
+            "Painel atualizado. Os indicadores serão exibidos quando houver dados reais disponíveis.";
+        } catch {
+          $("dashboardMessage").textContent =
+            "Não foi possível consultar a API agora. Você ainda pode acessar as seções da plataforma.";
+        } finally {
+          $("refreshButton").disabled = false;
         }
-
-        const result = await response.json();
-        const user = result.user || result.data?.user || result.company || {};
-        const role = String(user.role || "").toLowerCase();
-
-        if (role === "admin" || role === "administrator") {
-          $("adminNav").classList.remove("dashboard-hidden");
-        } else {
-          $("adminNav").classList.add("dashboard-hidden");
-        }
-
-        if (user.companyName || user.name) {
-          setCompanyName(user.companyName || user.name);
-        }
-      } catch (error) {
-        console.warn("Validação da sessão:", error.message);
       }
-    }
 
-    document.addEventListener("DOMContentLoaded", initializeDashboard);
+      $("refreshButton").addEventListener("click", refreshDashboard);
+      refreshDashboard();
+    })();
   </script>
-
-  <script src="./JS/dashboard.js"></script>
 </body>
 </html>
