@@ -3,411 +3,270 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101010">
 
   <title>Dashboard | Agência Marks</title>
-  <meta
-    name="description"
-    content="Painel de controle da Agência Marks: automações, vendas e resultados."
-  >
-  <meta name="theme-color" content="#101010">
 
   <link rel="stylesheet" href="./CSS/style.css">
 
   <style>
-    /* Estrutura exclusiva do dashboard */
-    .dashboard-layout {
+    /*
+      Dashboard atualizado.
+      A sidebar mantém o modelo lateral tradicional,
+      sem substituir a estrutura por outro tipo de menu.
+    */
+
+    .dashboard-page {
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 250px minmax(0, 1fr);
       background: #0c0c0d;
       color: #f5f5f5;
     }
 
-    .dashboard-sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 24px 16px;
-      background: #111112;
-      border-right: 1px solid #262628;
-      z-index: 20;
-    }
-
-    .dashboard-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 4px 8px 28px;
-      text-decoration: none;
-      color: #fff;
-    }
-
-    .dashboard-brand img {
-      width: 46px;
-      height: 46px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-
-    .dashboard-brand strong {
-      display: block;
-      font-size: 16px;
-      letter-spacing: -0.4px;
-    }
-
-    .dashboard-brand span {
-      display: block;
-      margin-top: 4px;
-      color: #99999f;
-      font-size: 11px;
-    }
-
-    .dashboard-nav-label {
-      padding: 12px 12px 10px;
-      color: #77777e;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-
-    .dashboard-nav {
-      display: grid;
-      gap: 6px;
-    }
-
-    .dashboard-nav a {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      color: #aaaab0;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .dashboard-nav a:hover,
-    .dashboard-nav a.active {
-      color: #fff;
-      background: #21170f;
-      border-color: #422714;
-    }
-
-    .dashboard-nav a.active .nav-icon,
-    .dashboard-nav a:hover .nav-icon {
-      color: #ff6a00;
-    }
-
-    .nav-icon {
-      width: 20px;
-      text-align: center;
-      color: #77777e;
-      font-size: 17px;
-    }
-
-    .sidebar-bottom {
-      margin-top: auto;
-      padding-top: 20px;
-    }
-
-    .dashboard-account {
-      padding: 14px;
-      border: 1px solid #29292c;
-      border-radius: 12px;
-      background: #171719;
-    }
-
-    .dashboard-account small {
-      color: #88888f;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .dashboard-account strong {
-      display: block;
-      margin-top: 8px;
-      overflow-wrap: anywhere;
-      font-size: 13px;
-    }
-
-    .account-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 10px;
-      color: #65d99a;
-      font-size: 11px;
-    }
-
-    .account-status::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #42ce83;
-    }
-
-    .dashboard-main {
+    .dashboard-content {
       min-width: 0;
       padding: 30px;
     }
 
-    .dashboard-topbar {
+    .dashboard-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 34px;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-bottom: 28px;
     }
 
-    .dashboard-heading h1 {
+    .dashboard-header h1 {
       margin: 0;
-      font-size: clamp(24px, 3vw, 32px);
-      letter-spacing: -1px;
+      font-size: 29px;
+      font-weight: 750;
+      letter-spacing: -0.8px;
     }
 
-    .dashboard-heading p {
-      margin: 9px 0 0;
-      color: #93939b;
+    .dashboard-header p {
+      margin: 8px 0 0;
+      color: #99999f;
       font-size: 13px;
-      line-height: 1.6;
     }
 
-    .dashboard-top-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .dashboard-date {
-      padding: 10px 13px;
-      border: 1px solid #2b2b2e;
+    .dashboard-header-date {
+      padding: 10px 14px;
+      border: 1px solid #2b2b2f;
       border-radius: 9px;
-      color: #b6b6bd;
+      background: #141416;
+      color: #b9b9c0;
       font-size: 12px;
-      white-space: nowrap;
     }
 
-    .dashboard-welcome {
+    .dashboard-hero {
       position: relative;
       overflow: hidden;
-      padding: 28px;
-      margin-bottom: 24px;
-      border: 1px solid #3b281a;
-      border-radius: 16px;
+      padding: 27px;
+      margin-bottom: 28px;
+      border: 1px solid #3b291d;
+      border-radius: 15px;
       background:
         radial-gradient(
-          circle at 90% 10%,
-          rgba(255, 106, 0, 0.16),
-          transparent 38%
+          circle at 90% 20%,
+          rgba(255, 106, 0, .15),
+          transparent 35%
         ),
-        linear-gradient(125deg, #1b1714, #151516 65%);
+        linear-gradient(120deg, #1b1714, #151516);
     }
 
-    .dashboard-welcome::after {
-      content: "M";
-      position: absolute;
-      right: 30px;
-      top: -42px;
-      color: rgba(255, 106, 0, 0.055);
-      font-size: 220px;
-      line-height: 1;
-      font-weight: 900;
-      pointer-events: none;
-    }
-
-    .welcome-eyebrow {
-      color: #ff8b3d;
+    .dashboard-hero-label {
+      color: #ff8739;
       font-size: 10px;
       font-weight: 800;
-      letter-spacing: 2px;
+      letter-spacing: 1.8px;
       text-transform: uppercase;
     }
 
-    .dashboard-welcome h2 {
+    .dashboard-hero h2 {
       position: relative;
       z-index: 1;
       max-width: 620px;
-      margin: 14px 0 10px;
+      margin: 12px 0;
       font-size: clamp(22px, 3vw, 29px);
-      letter-spacing: -0.7px;
+      line-height: 1.3;
+      letter-spacing: -.6px;
     }
 
-    .dashboard-welcome p {
+    .dashboard-hero p {
       position: relative;
       z-index: 1;
-      max-width: 560px;
+      max-width: 600px;
       margin: 0;
-      color: #a8a5a2;
+      color: #aaa6a3;
       font-size: 13px;
       line-height: 1.8;
     }
 
-    .dashboard-section-title {
+    .dashboard-section-heading {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
       margin: 30px 0 16px;
     }
 
-    .dashboard-section-title h2 {
+    .dashboard-section-heading h2 {
       margin: 0;
       font-size: 16px;
-      letter-spacing: -0.3px;
+      font-weight: 750;
     }
 
-    .dashboard-section-title span {
+    .dashboard-section-heading span {
       color: #77777e;
       font-size: 11px;
     }
 
-    .dashboard-metrics {
+    .dashboard-stats {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
+      gap: 15px;
     }
 
-    .metric-card {
+    .dashboard-stat {
       min-width: 0;
       padding: 20px;
-      border: 1px solid #29292c;
-      border-radius: 13px;
+      border: 1px solid #29292d;
+      border-radius: 12px;
       background: #141416;
+      transition: border-color .2s, transform .2s;
     }
 
-    .metric-top {
+    .dashboard-stat:hover {
+      transform: translateY(-2px);
+      border-color: #49311f;
+    }
+
+    .dashboard-stat-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
 
-    .metric-label {
-      color: #a3a3aa;
+    .dashboard-stat-label {
+      color: #a6a6ad;
       font-size: 12px;
     }
 
-    .metric-icon {
+    .dashboard-stat-icon {
       display: grid;
       width: 35px;
       height: 35px;
       flex-shrink: 0;
       place-items: center;
-      border: 1px solid #3b281b;
-      border-radius: 10px;
-      background: #24180f;
-      color: #ff7b24;
-      font-size: 16px;
+      border: 1px solid #3c2a1d;
+      border-radius: 9px;
+      background: #25190f;
+      color: #ff7924;
+      font-size: 17px;
     }
 
-    .metric-value {
+    .dashboard-stat-value {
       margin-top: 20px;
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -1px;
     }
 
-    .metric-description {
-      margin-top: 8px;
+    .dashboard-stat-description {
+      margin-top: 7px;
       color: #77777e;
       font-size: 11px;
       line-height: 1.6;
     }
 
-    .dashboard-columns {
+    .dashboard-lower-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+      grid-template-columns: minmax(0, 1.35fr) minmax(260px, 1fr);
       gap: 18px;
       margin-top: 24px;
     }
 
-    .dashboard-panel {
+    .dashboard-box {
       min-width: 0;
       padding: 22px;
-      border: 1px solid #29292c;
+      border: 1px solid #29292d;
       border-radius: 13px;
       background: #141416;
     }
 
-    .dashboard-panel h3 {
+    .dashboard-box h3 {
       margin: 0;
       font-size: 14px;
     }
 
-    .panel-subtitle {
-      margin: 8px 0 20px;
+    .dashboard-box-description {
+      margin: 7px 0 20px;
       color: #85858d;
       font-size: 11px;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
-    .quick-links {
+    .dashboard-shortcuts {
       display: grid;
       gap: 10px;
     }
 
-    .quick-link {
+    .dashboard-shortcut {
       display: flex;
       align-items: center;
       gap: 13px;
-      padding: 14px;
-      border: 1px solid #2b2b2e;
+      padding: 13px;
+      border: 1px solid #2b2b2f;
       border-radius: 10px;
-      color: inherit;
+      color: #f5f5f5;
       text-decoration: none;
-      transition: border-color 0.2s, background 0.2s;
+      transition: background .2s, border-color .2s;
     }
 
-    .quick-link:hover {
-      border-color: #75411f;
-      background: #1b1714;
+    .dashboard-shortcut:hover {
+      border-color: #67401f;
+      background: #1c1713;
     }
 
-    .quick-link-icon {
+    .dashboard-shortcut-icon {
       display: grid;
-      width: 38px;
-      height: 38px;
+      width: 39px;
+      height: 39px;
       flex-shrink: 0;
       place-items: center;
       border-radius: 10px;
-      background: #24180f;
-      color: #ff7b24;
+      background: #25190f;
+      color: #ff7924;
       font-size: 17px;
     }
 
-    .quick-link-content {
+    .dashboard-shortcut-text {
       min-width: 0;
       flex: 1;
     }
 
-    .quick-link-content strong {
+    .dashboard-shortcut-text strong {
       display: block;
       font-size: 12px;
     }
 
-    .quick-link-content span {
+    .dashboard-shortcut-text span {
       display: block;
-      margin-top: 5px;
+      margin-top: 4px;
       color: #898990;
       font-size: 11px;
       line-height: 1.5;
     }
 
-    .quick-link-arrow {
+    .dashboard-shortcut-arrow {
       color: #77777e;
-      font-size: 17px;
+      font-size: 18px;
     }
 
-    .activity-empty {
-      padding: 24px 12px;
+    .dashboard-empty-state {
+      padding: 24px 14px;
       border: 1px dashed #303034;
       border-radius: 10px;
       color: #85858d;
@@ -421,128 +280,78 @@
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 12px;
-      padding-top: 26px;
+      padding-top: 23px;
       margin-top: 30px;
       border-top: 1px solid #262628;
-      color: #707078;
+      color: #77777e;
       font-size: 11px;
     }
 
     .dashboard-footer strong {
-      color: #a5a5ac;
+      color: #b9b9c0;
+    }
+
+    .dashboard-toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 999;
+      max-width: calc(100vw - 40px);
+      padding: 13px 17px;
+      border: 1px solid #3a3a3f;
+      border-radius: 10px;
+      background: #1b1b1e;
+      color: #fff;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, .3);
+      font-size: 12px;
     }
 
     .dashboard-hidden {
       display: none !important;
     }
 
-    .dashboard-toast {
-      position: fixed;
-      right: 22px;
-      bottom: 22px;
-      z-index: 100;
-      max-width: calc(100vw - 44px);
-      padding: 14px 18px;
-      border: 1px solid #3c3c40;
-      border-radius: 10px;
-      background: #1a1a1c;
-      color: #fff;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-      font-size: 13px;
-    }
-
-    @media (max-width: 1150px) {
-      .dashboard-metrics {
+    @media (max-width: 1100px) {
+      .dashboard-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .dashboard-columns {
+      .dashboard-lower-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 760px) {
-      .dashboard-layout {
-        grid-template-columns: 1fr;
+    @media (max-width: 600px) {
+      .dashboard-content {
+        padding: 20px 14px;
       }
 
-      .dashboard-sidebar {
-        position: relative;
-        height: auto;
+      .dashboard-header h1 {
+        font-size: 25px;
+      }
+
+      .dashboard-header-date {
+        display: none;
+      }
+
+      .dashboard-hero {
+        padding: 21px;
+      }
+
+      .dashboard-stat {
         padding: 14px;
-        border-right: 0;
-        border-bottom: 1px solid #262628;
       }
 
-      .dashboard-brand {
-        padding: 0 4px 14px;
-      }
-
-      .dashboard-brand img {
-        width: 40px;
-        height: 40px;
-      }
-
-      .dashboard-nav-label,
-      .sidebar-bottom {
-        display: none;
-      }
-
-      .dashboard-nav {
-        display: flex;
-        gap: 6px;
-        overflow-x: auto;
-        padding-bottom: 3px;
-      }
-
-      .dashboard-nav a {
-        flex: 0 0 auto;
-        padding: 10px;
-        font-size: 11px;
-      }
-
-      .nav-icon {
-        width: auto;
-      }
-
-      .dashboard-main {
-        padding: 22px 15px;
-      }
-
-      .dashboard-topbar {
-        align-items: flex-start;
-        margin-bottom: 24px;
-      }
-
-      .dashboard-date {
-        display: none;
-      }
-
-      .dashboard-welcome {
-        padding: 22px;
-      }
-
-      .dashboard-welcome::after {
-        right: -12px;
-        top: 5px;
-        font-size: 140px;
-      }
-
-      .metric-card {
-        padding: 15px;
-      }
-
-      .metric-value {
+      .dashboard-stat-value {
         font-size: 24px;
       }
 
-      .dashboard-panel {
-        padding: 17px;
+      .dashboard-box {
+        padding: 16px;
       }
     }
 
-    @media (max-width: 390px) {
-      .dashboard-metrics {
+    @media (max-width: 360px) {
+      .dashboard-stats {
         grid-template-columns: 1fr;
       }
     }
@@ -550,201 +359,240 @@
 </head>
 
 <body>
-  <div class="dashboard-layout">
+  <div class="dashboard-page">
 
-    <aside class="dashboard-sidebar">
-      <a class="dashboard-brand" href="./dashboard.html" aria-label="Agência Marks - Dashboard">
+    <!-- SIDEBAR:
+         Mantemos o menu lateral em sua estrutura tradicional.
+         Os links continuam organizados verticalmente. -->
+    <aside class="sidebar">
+
+      <a class="sidebar-brand" href="./dashboard.html">
         <img
+          class="sidebar-logo"
           src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
-          alt="Logo da Agência Marks"
+          alt="Agência Marks"
           onerror="this.style.display='none'"
         >
-        <div>
+
+        <div class="sidebar-brand-text">
           <strong>Agência Marks</strong>
           <span>Inteligência para negócios</span>
         </div>
       </a>
 
-      <div class="dashboard-nav-label">Workspace</div>
+      <div class="sidebar-section-title">MENU PRINCIPAL</div>
 
-      <nav class="dashboard-nav" aria-label="Navegação principal">
-        <a href="./dashboard.html" class="active" aria-current="page">
-          <span class="nav-icon">▦</span>
-          Dashboard
+      <nav class="sidebar-nav" aria-label="Menu principal">
+
+        <a class="sidebar-link active" href="./dashboard.html">
+          <span class="sidebar-icon">▦</span>
+          <span>Dashboard</span>
         </a>
 
-        <a href="./automacoes.html">
-          <span class="nav-icon">⌘</span>
-          Automações
+        <a class="sidebar-link" href="./automacoes.html">
+          <span class="sidebar-icon">⌘</span>
+          <span>Automações</span>
         </a>
 
-        <a href="./vendas.html">
-          <span class="nav-icon">↗</span>
-          Inteligência de vendas
+        <a class="sidebar-link" href="./vendas.html">
+          <span class="sidebar-icon">↗</span>
+          <span>Inteligência de vendas</span>
         </a>
 
-        <a href="./relatorios.html">
-          <span class="nav-icon">▤</span>
-          Relatórios
+        <a class="sidebar-link" href="./relatorios.html">
+          <span class="sidebar-icon">▤</span>
+          <span>Relatórios</span>
         </a>
 
-        <a href="./admin.html" id="adminNav" class="dashboard-hidden">
-          <span class="nav-icon">⚙</span>
-          Administração
+        <a
+          class="sidebar-link dashboard-hidden"
+          href="./admin.html"
+          id="adminNav"
+        >
+          <span class="sidebar-icon">⚙</span>
+          <span>Administração</span>
         </a>
+
       </nav>
 
       <div class="sidebar-bottom">
-        <div class="dashboard-account">
-          <small>Conta conectada</small>
+        <div class="sidebar-account">
+          <span class="sidebar-account-label">CONTA CONECTADA</span>
           <strong id="activityCompanyName">Carregando conta...</strong>
-          <span class="account-status" id="apiStatusText">Verificando conexão</span>
+          <span class="sidebar-connection">
+            <span class="sidebar-connection-dot"></span>
+            <span id="apiStatusText">Verificando conexão</span>
+          </span>
         </div>
       </div>
+
     </aside>
 
-    <main class="dashboard-main">
-      <header class="dashboard-topbar">
-        <div class="dashboard-heading">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="dashboard-content">
+
+      <header class="dashboard-header">
+        <div>
           <h1>Dashboard</h1>
-          <p>Acompanhe sua operação e acesse suas ferramentas.</p>
+          <p>Bem-vindo à sua central de inteligência comercial.</p>
         </div>
 
-        <div class="dashboard-top-actions">
-          <div class="dashboard-date" id="todayDate">Carregando data...</div>
+        <div class="dashboard-header-date" id="todayDate">
+          Carregando data...
         </div>
       </header>
 
-      <section class="dashboard-welcome">
-        <div class="welcome-eyebrow">Agência Marks · Workspace</div>
-        <h2>Transforme processos em resultados.</h2>
+      <section class="dashboard-hero">
+        <div class="dashboard-hero-label">AGÊNCIA MARKS · WORKSPACE</div>
+
+        <h2>Mais inteligência. Menos trabalho manual.</h2>
+
         <p>
-          Gerencie suas ferramentas, organize sua operação comercial e
-          encontre novas oportunidades para fazer seu negócio crescer.
+          Acesse suas ferramentas, acompanhe sua operação comercial e
+          organize os processos que ajudam seu negócio a crescer.
         </p>
       </section>
 
-      <div class="dashboard-section-title">
+      <div class="dashboard-section-heading">
         <h2>Visão geral</h2>
-        <span>Indicadores da sua operação</span>
+        <span>Dados da sua operação</span>
       </div>
 
-      <section class="dashboard-metrics" aria-label="Indicadores da operação">
-        <article class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Automações</span>
-            <span class="metric-icon">⌘</span>
+      <section class="dashboard-stats">
+
+        <article class="dashboard-stat">
+          <div class="dashboard-stat-top">
+            <span class="dashboard-stat-label">Automações</span>
+            <span class="dashboard-stat-icon">⌘</span>
           </div>
-          <div class="metric-value" id="metricAutomations">—</div>
-          <div class="metric-description">
-            Quantidade de automações cadastradas, quando disponível.
+
+          <div class="dashboard-stat-value" id="metricAutomations">—</div>
+
+          <div class="dashboard-stat-description">
+            Automações cadastradas no sistema.
           </div>
         </article>
 
-        <article class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Leads</span>
-            <span class="metric-icon">◎</span>
+        <article class="dashboard-stat">
+          <div class="dashboard-stat-top">
+            <span class="dashboard-stat-label">Leads</span>
+            <span class="dashboard-stat-icon">◎</span>
           </div>
-          <div class="metric-value" id="metricLeads">—</div>
-          <div class="metric-description">
-            Leads registrados na plataforma, quando disponível.
+
+          <div class="dashboard-stat-value" id="metricLeads">—</div>
+
+          <div class="dashboard-stat-description">
+            Contatos registrados na plataforma.
           </div>
         </article>
 
-        <article class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Oportunidades</span>
-            <span class="metric-icon">↗</span>
+        <article class="dashboard-stat">
+          <div class="dashboard-stat-top">
+            <span class="dashboard-stat-label">Oportunidades</span>
+            <span class="dashboard-stat-icon">↗</span>
           </div>
-          <div class="metric-value" id="metricOpportunities">—</div>
-          <div class="metric-description">
-            Oportunidades comerciais registradas, quando disponível.
+
+          <div class="dashboard-stat-value" id="metricOpportunities">—</div>
+
+          <div class="dashboard-stat-description">
+            Oportunidades comerciais registradas.
           </div>
         </article>
 
-        <article class="metric-card">
-          <div class="metric-top">
-            <span class="metric-label">Conexão da API</span>
-            <span class="metric-icon">⌁</span>
+        <article class="dashboard-stat">
+          <div class="dashboard-stat-top">
+            <span class="dashboard-stat-label">API</span>
+            <span class="dashboard-stat-icon">⌁</span>
           </div>
-          <div class="metric-value" id="apiStatus">...</div>
-          <div class="metric-description">
-            Estado da comunicação com o servidor.
+
+          <div class="dashboard-stat-value" id="apiStatus">...</div>
+
+          <div class="dashboard-stat-description">
+            Estado da conexão com o servidor.
           </div>
         </article>
+
       </section>
 
-      <div class="dashboard-columns">
-        <section class="dashboard-panel">
+      <div class="dashboard-lower-grid">
+
+        <section class="dashboard-box">
           <h3>Acesso rápido</h3>
-          <p class="panel-subtitle">
-            Acesse as principais ferramentas da Agência Marks.
+
+          <p class="dashboard-box-description">
+            Entre diretamente nas principais ferramentas da plataforma.
           </p>
 
-          <div class="quick-links">
-            <a class="quick-link" href="./automacoes.html">
-              <span class="quick-link-icon">⌘</span>
-              <span class="quick-link-content">
+          <div class="dashboard-shortcuts">
+
+            <a class="dashboard-shortcut" href="./automacoes.html">
+              <span class="dashboard-shortcut-icon">⌘</span>
+
+              <span class="dashboard-shortcut-text">
                 <strong>Automações inteligentes</strong>
-                <span>Consulte e gerencie suas ferramentas de automação.</span>
+                <span>Gerencie seus processos automatizados.</span>
               </span>
-              <span class="quick-link-arrow">›</span>
+
+              <span class="dashboard-shortcut-arrow">›</span>
             </a>
 
-            <a class="quick-link" href="./vendas.html">
-              <span class="quick-link-icon">↗</span>
-              <span class="quick-link-content">
+            <a class="dashboard-shortcut" href="./vendas.html">
+              <span class="dashboard-shortcut-icon">↗</span>
+
+              <span class="dashboard-shortcut-text">
                 <strong>Inteligência de vendas</strong>
-                <span>Organize leads e acompanhe oportunidades comerciais.</span>
+                <span>Organize seus leads e oportunidades.</span>
               </span>
-              <span class="quick-link-arrow">›</span>
+
+              <span class="dashboard-shortcut-arrow">›</span>
             </a>
 
-            <a class="quick-link" href="./relatorios.html">
-              <span class="quick-link-icon">▤</span>
-              <span class="quick-link-content">
+            <a class="dashboard-shortcut" href="./relatorios.html">
+              <span class="dashboard-shortcut-icon">▤</span>
+
+              <span class="dashboard-shortcut-text">
                 <strong>Relatórios e resultados</strong>
-                <span>Acompanhe dados e resultados registrados na plataforma.</span>
+                <span>Consulte os dados da sua operação.</span>
               </span>
-              <span class="quick-link-arrow">›</span>
+
+              <span class="dashboard-shortcut-arrow">›</span>
             </a>
+
           </div>
         </section>
 
-        <section class="dashboard-panel">
+        <section class="dashboard-box">
           <h3>Atividade recente</h3>
-          <p class="panel-subtitle">
-            As atividades aparecerão aqui quando estiverem integradas ao sistema.
+
+          <p class="dashboard-box-description">
+            Acompanhe aqui as atividades registradas na plataforma.
           </p>
 
-          <div class="activity-empty" id="activityEmpty">
-            Nenhuma atividade para exibir no momento.
+          <div class="dashboard-empty-state" id="activityEmpty">
+            Nenhuma atividade registrada para exibir.
           </div>
 
           <div id="activityList"></div>
         </section>
+
       </div>
 
       <footer class="dashboard-footer">
         <span>© <span id="year"></span> <strong>Agência Marks</strong></span>
-        <span>Inteligência, automação e crescimento.</span>
+        <span>Automação inteligente para negócios.</span>
       </footer>
+
     </main>
   </div>
 
   <div
-    id="dashboardToast"
     class="dashboard-toast dashboard-hidden"
+    id="dashboardToast"
     role="status"
     aria-live="polite"
   ></div>
 
   <script>
-    /*
-     * Configuração da API.
-     * Se o backend já estiver hospedado no Render, mantenha esta URL.
-     */
     const API_BASE = "https://agencia-marks.onrender.com";
 
     const $ = (id) => document.getElementById(id);
@@ -756,17 +604,15 @@
       toast.textContent = message;
       toast.classList.remove("dashboard-hidden");
 
-      window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => {
+      clearTimeout(showToast.timer);
+
+      showToast.timer = setTimeout(() => {
         toast.classList.add("dashboard-hidden");
       }, 3500);
     }
 
     function setCompanyName(name) {
-      const safeName = name || "Minha conta";
-      const element = $("activityCompanyName");
-
-      if (element) element.textContent = safeName;
+      $("activityCompanyName").textContent = name || "Minha conta";
     }
 
     function updateDate() {
@@ -782,7 +628,7 @@
     }
 
     function setApiStatus(online, message) {
-      $("apiStatus").textContent = online ? "Online" : "Indisponível";
+      $("apiStatus").textContent = online ? "Online" : "Offline";
       $("apiStatusText").textContent = message;
     }
 
@@ -797,69 +643,54 @@
 
     async function checkApiConnection() {
       try {
-        const response = await fetch(API_BASE + "/", {
-          method: "GET",
-          headers: { "Accept": "application/json" }
-        });
+        const response = await fetch(`${API_BASE}/`);
 
-        if (!response.ok) throw new Error("API indisponível");
+        if (!response.ok) {
+          throw new Error("Falha na API");
+        }
 
         setApiStatus(true, "Servidor conectado");
       } catch (error) {
-        setApiStatus(false, "Falha na conexão");
+        setApiStatus(false, "Servidor indisponível");
       }
     }
 
     async function initializeDashboard() {
       updateDate();
 
-      const storedCompanyName =
+      const companyName =
         sessionStorage.getItem("marks_company_name") ||
         localStorage.getItem("marks_company_name");
 
-      if (storedCompanyName) {
-        setCompanyName(storedCompanyName);
-      } else {
-        setCompanyName("Conta conectada");
-      }
+      setCompanyName(companyName || "Conta conectada");
 
       await checkApiConnection();
 
       const token = getStoredToken();
 
-      /*
-       * Sem token, não assumimos que o visitante está autenticado.
-       * A validação real da sessão precisa ser confirmada pelo backend.
-       */
       if (!token) {
-        showToast("Não encontramos uma sessão salva. Verifique seu login.");
+        showToast("Sessão não encontrada. Verifique seu login.");
         return;
       }
 
-      /*
-       * O endpoint /api/auth/me precisa existir no backend.
-       * Não concedemos privilégios administrativos apenas pelo navegador.
-       */
       try {
-        const response = await fetch(API_BASE + "/api/auth/me", {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
           method: "GET",
           headers: {
             "Accept": "application/json",
-            "Authorization": "Bearer " + token
+            "Authorization": `Bearer ${token}`
           }
         });
 
         if (!response.ok) {
-          throw new Error("Sessão inválida ou expirada");
+          throw new Error("Não foi possível validar a sessão.");
         }
 
         const result = await response.json();
         const user = result.user || result.data?.user || result.company || {};
-
         const role = String(user.role || "").toLowerCase();
-        const isAdmin = role === "admin" || role === "administrator";
 
-        if (isAdmin) {
+        if (role === "admin" || role === "administrator") {
           $("adminNav").classList.remove("dashboard-hidden");
         } else {
           $("adminNav").classList.add("dashboard-hidden");
@@ -868,21 +699,14 @@
         if (user.companyName || user.name) {
           setCompanyName(user.companyName || user.name);
         }
-
       } catch (error) {
-        /*
-         * Não redirecionamos automaticamente porque a rota e o formato
-         * exatos do backend precisam ser compatíveis com a implementação atual.
-         * A autorização de cada página deve ser validada no servidor.
-         */
-        console.warn("Não foi possível validar a sessão:", error.message);
+        console.warn("Validação da sessão:", error.message);
       }
     }
 
     document.addEventListener("DOMContentLoaded", initializeDashboard);
   </script>
 
-  <!-- Mantido para compatibilidade com os scripts atuais do projeto. -->
   <script src="./JS/dashboard.js"></script>
 </body>
 </html>
