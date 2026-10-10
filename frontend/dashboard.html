@@ -1,1 +1,753 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0b0d">
+  <title>Dashboard | Agência Marks</title>
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --panel: #121215;
+      --panel-hover: #19191d;
+      --border: #27272c;
+      --text: #f4f4f5;
+      --muted: #92929c;
+      --orange: #ff6a00;
+      --orange-light: #ff8b38;
+      --green: #38d996;
+      --radius: 15px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .app { min-height: 100vh; }
+
+    .sidebar {
+      width: 248px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 20;
+      background: #0e0e10;
+      border-right: 1px solid var(--border);
+      padding: 25px 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform .25s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 9px 29px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 900;
+      font-size: 22px;
+      box-shadow: 0 5px 25px #ff6a0029;
+    }
+
+    .brand-name { font-size: 16px; font-weight: 800; letter-spacing: -.6px; }
+    .brand-name span { color: var(--orange); }
+    .brand-caption { color: var(--muted); font-size: 10px; margin-top: 4px; }
+
+    .nav-title {
+      padding: 26px 10px 10px;
+      color: #696973;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .nav { display: grid; gap: 5px; }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 12px;
+      background: transparent;
+      color: #a6a6af;
+      text-align: left;
+      transition: .2s;
+    }
+
+    .nav-item:hover { color: #fff; background: var(--panel-hover); }
+    .nav-item.active {
+      color: #fff;
+      background: #ff6a0015;
+      border-color: #ff6a0030;
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .nav-item.active .nav-icon { color: var(--orange-light); }
+
+    .sidebar-bottom { margin-top: auto; }
+    .plan-card {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .plan-top { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .plan-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+    .plan-card p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .plan-link { color: var(--orange-light); font-size: 12px; font-weight: 700; }
+
+    .sidebar-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 5px 0;
+      margin-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      color: white;
+      background: linear-gradient(135deg, #ff8b38, #bd4300);
+      font-weight: 800;
+    }
+
+    .user-name { font-size: 12px; font-weight: 700; max-width: 125px; overflow-wrap: anywhere; }
+    .user-role { color: var(--muted); font-size: 11px; margin-top: 4px; }
+
+    .main { margin-left: 248px; min-height: 100vh; }
+
+    .topbar {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 35px;
+      border-bottom: 1px solid var(--border);
+      background: #0b0b0ddf;
+    }
+
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: #fff; font-weight: 600; }
+
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .status { display: flex; align-items: center; gap: 7px; color: #b6b6be; font-size: 12px; }
+    .status .plan-dot { box-shadow: 0 0 12px #38d99670; }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: #ddd;
+      border-radius: 10px;
+    }
+
+    .icon-btn:hover { border-color: #555; color: #fff; }
+    .menu-toggle { display: none; }
+
+    .content { max-width: 1450px; margin: 0 auto; padding: 34px 35px 55px; }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--orange-light);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.7px;
+      text-transform: uppercase;
+      margin-bottom: 13px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 2px;
+      background: var(--orange);
+    }
+
+    h1 { margin: 0; font-size: clamp(27px, 3vw, 35px); letter-spacing: -1.5px; line-height: 1.2; }
+    .welcome p { margin: 11px 0 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+
+    .date-chip {
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--panel);
+      padding: 11px 14px;
+      color: #c4c4cb;
+      font-size: 12px;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin: 31px 0 15px;
+    }
+
+    .section-heading h2 { font-size: 15px; letter-spacing: -.3px; margin: 0; }
+    .section-heading span { font-size: 11px; color: var(--muted); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-width: 0;
+    }
+
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      top: -42px;
+      right: -42px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #ff6a0008;
+    }
+
+    .stat-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .stat-label { color: #a6a6af; font-size: 12px; }
+    .stat-icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #ff6a002a;
+      border-radius: 10px;
+      color: var(--orange-light);
+      background: #ff6a0010;
+      font-size: 16px;
+    }
+
+    .stat-value { margin-top: 21px; font-size: 30px; font-weight: 750; letter-spacing: -1px; }
+    .stat-foot { margin-top: 10px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+    .positive { color: var(--green); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr); gap: 16px; }
+
+    .card {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 21px;
+    }
+
+    .card-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
+    .card-title { margin: 0; font-size: 14px; font-weight: 700; }
+    .card-subtitle { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .tag { color: #c5c5cc; background: #202024; border-radius: 6px; padding: 7px 9px; font-size: 10px; white-space: nowrap; }
+
+    .chart {
+      height: 190px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      gap: 12px;
+      padding: 23px 3px 0;
+      margin-top: 12px;
+      border-bottom: 1px solid #29292e;
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 46px, #ffffff08 47px, transparent 48px);
+    }
+
+    .bar-group { height: 100%; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 9px; }
+    .bar {
+      width: min(30px, 75%);
+      min-height: 5px;
+      background: linear-gradient(180deg, #ff8b38, #ff6a00);
+      border-radius: 5px 5px 0 0;
+      opacity: .8;
+      transition: opacity .2s;
+    }
+    .bar:hover { opacity: 1; }
+    .bar-label { color: #81818b; font-size: 10px; padding-bottom: 10px; }
+
+    .activity-list { margin-top: 18px; display: grid; gap: 0; }
+    .activity {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid #252529;
+    }
+    .activity:last-child { border-bottom: 0; padding-bottom: 0; }
+    .activity-icon {
+      width: 35px; height: 35px; flex-shrink: 0;
+      display: grid; place-items: center;
+      background: #ff6a0010; border: 1px solid #ff6a0020;
+      color: var(--orange-light); border-radius: 10px;
+    }
+    .activity-text { font-size: 12px; font-weight: 600; line-height: 1.6; }
+    .activity-time { margin-top: 4px; color: var(--muted); font-size: 10px; }
+
+    .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 190px;
+      padding: 21px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: transform .2s, border-color .2s, background .2s;
+    }
+
+    .tool-card:hover { transform: translateY(-3px); border-color: #ff6a0060; background: #151517; }
+
+    .tool-icon {
+      width: 43px; height: 43px; display: grid; place-items: center;
+      border: 1px solid #ff6a002e; border-radius: 12px;
+      color: var(--orange-light); background: #ff6a0010; font-size: 20px;
+    }
+
+    .tool-card h3 { margin: 20px 0 8px; font-size: 14px; }
+    .tool-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .tool-link { margin-top: auto; padding-top: 18px; color: var(--orange-light); font-size: 11px; font-weight: 700; }
+
+    .notice {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      margin-top: 25px;
+      padding: 18px;
+      border: 1px solid #ff6a0028;
+      border-radius: 12px;
+      background: #ff6a0008;
+    }
+
+    .notice-icon { font-size: 19px; color: var(--orange-light); }
+    .notice strong { font-size: 12px; }
+    .notice p { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+
+    .page-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding-top: 27px;
+      margin-top: 35px;
+      border-top: 1px solid var(--border);
+      color: #686872;
+      font-size: 11px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      max-width: calc(100vw - 44px);
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      background: #19191d;
+      border-radius: 10px;
+      box-shadow: 0 12px 45px #0008;
+      color: #eee;
+      z-index: 100;
+    }
+
+    @media (max-width: 1150px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .content { padding: 28px 24px 45px; }
+      .topbar { padding: 0 24px; }
+    }
+
+    @media (max-width: 850px) {
+      .sidebar { transform: translateX(-100%); box-shadow: 15px 0 50px #0006; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .menu-toggle { display: grid; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .topbar { height: 66px; }
+    }
+
+    @media (max-width: 560px) {
+      .content { padding: 25px 16px 35px; }
+      .topbar { padding: 0 16px; }
+      .welcome { align-items: flex-start; flex-direction: column; gap: 16px; }
+      .date-chip { align-self: flex-start; }
+      .stats { gap: 10px; }
+      .stat-card { padding: 15px; }
+      .stat-value { font-size: 25px; }
+      .stat-label { font-size: 11px; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .tool-card { min-height: 170px; }
+      .status { display: none; }
+      .page-footer { flex-direction: column; }
+      .card { padding: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <a href="./index.html" class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <div class="brand-name">AGÊNCIA <span>MARKS</span></div>
+          <div class="brand-caption">INTELLIGENCE PLATFORM</div>
+        </div>
+      </a>
+
+      <div class="nav-title">Workspace</div>
+      <nav class="nav" aria-label="Navegação principal">
+        <button class="nav-item active" data-section="overview"><span class="nav-icon">◫</span> Visão geral</button>
+        <button class="nav-item" data-section="tools"><span class="nav-icon">✳</span> Ferramentas</button>
+        <button class="nav-item" data-section="activity"><span class="nav-icon">◷</span> Atividade recente</button>
+      </nav>
+
+      <div class="nav-title">Conta</div>
+      <nav class="nav" aria-label="Navegação da conta">
+        <button class="nav-item" id="accountButton"><span class="nav-icon">◎</span> Minha empresa</button>
+        <button class="nav-item" id="helpButton"><span class="nav-icon">?</span> Central de ajuda</button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="plan-card">
+          <div class="plan-top"><span class="plan-dot"></span> Plataforma conectada</div>
+          <p>Seu espaço de trabalho está pronto para usar os recursos disponíveis na sua conta.</p>
+          <a href="#tools" class="plan-link">Explorar ferramentas ↗</a>
+        </div>
+        <div class="sidebar-footer">
+          <div class="avatar" id="userAvatar">M</div>
+          <div>
+            <div class="user-name" id="sidebarCompanyName">Sua empresa</div>
+            <div class="user-role">Conta empresarial</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-actions">
+          <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+          <div class="breadcrumb">Workspace <span style="color:#555">/</span> <strong>Visão geral</strong></div>
+        </div>
+        <div class="top-actions">
+          <div class="status"><span class="plan-dot"></span> Sessão autenticada</div>
+          <button class="icon-btn" id="logoutButton" title="Sair da conta" aria-label="Sair da conta">↗</button>
+        </div>
+      </header>
+
+      <div class="content" id="overview">
+        <section class="welcome">
+          <div>
+            <div class="eyebrow">Seu workspace digital</div>
+            <h1>Bem-vindo à plataforma<span style="color:var(--orange)">.</span></h1>
+            <p>Olá, <strong id="welcomeCompanyName" style="color:#fff">sua empresa</strong>. Aqui você encontra seus recursos e acompanha as novidades do seu workspace.</p>
+          </div>
+          <div class="date-chip" id="todayDate">Carregando data...</div>
+        </section>
+
+        <div class="section-heading">
+          <h2>Resumo do workspace</h2>
+          <span>Visão geral da sua conta</span>
+        </div>
+
+        <section class="stats" aria-label="Resumo">
+          <article class="stat-card">
+            <div class="stat-head"><span class="stat-label">Status da conta</span><span class="stat-icon">✓</span></div>
+            <div class="stat-value" style="font-size:25px">Ativa</div>
+            <div class="stat-foot"><span class="positive">●</span> Sessão validada pela API</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-head"><span class="stat-label">Ferramentas</span><span class="stat-icon">✳</span></div>
+            <div class="stat-value">03</div>
+            <div class="stat-foot">Áreas de recursos disponíveis nesta interface</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-head"><span class="stat-label">Seu workspace</span><span class="stat-icon">⌘</span></div>
+            <div class="stat-value" style="font-size:21px" id="workspaceShortName">Marks</div>
+            <div class="stat-foot">Identificação da conta conectada</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-head"><span class="stat-label">Conexão da API</span><span class="stat-icon">↗</span></div>
+            <div class="stat-value" style="font-size:25px" id="apiStatus">Verificando</div>
+            <div class="stat-foot" id="apiStatusText">Consultando o serviço</div>
+          </article>
+        </section>
+
+        <div class="section-heading">
+          <h2>Seu ambiente</h2>
+          <span>Informações desta sessão</span>
+        </div>
+
+        <section class="dashboard-grid">
+          <article class="card">
+            <div class="card-title-row">
+              <div>
+                <h2 class="card-title">Visão do workspace</h2>
+                <p class="card-subtitle">Uma visão visual do ambiente da sua empresa.</p>
+              </div>
+              <span class="tag">Resumo ilustrativo</span>
+            </div>
+            <div class="chart" aria-label="Gráfico decorativo, sem dados reais">
+              <div class="bar-group"><div class="bar" style="height:33%"></div><span class="bar-label">Seg</span></div>
+              <div class="bar-group"><div class="bar" style="height:55%"></div><span class="bar-label">Ter</span></div>
+              <div class="bar-group"><div class="bar" style="height:43%"></div><span class="bar-label">Qua</span></div>
+              <div class="bar-group"><div class="bar" style="height:76%"></div><span class="bar-label">Qui</span></div>
+              <div class="bar-group"><div class="bar" style="height:62%"></div><span class="bar-label">Sex</span></div>
+              <div class="bar-group"><div class="bar" style="height:90%"></div><span class="bar-label">Sáb</span></div>
+              <div class="bar-group"><div class="bar" style="height:69%"></div><span class="bar-label">Dom</span></div>
+            </div>
+            <p class="card-subtitle">O gráfico é apenas demonstrativo. Métricas reais serão exibidas quando os recursos e dados forem integrados.</p>
+          </article>
+
+          <article class="card" id="activity">
+            <div class="card-title-row">
+              <div>
+                <h2 class="card-title">Atividade recente</h2>
+                <p class="card-subtitle">Estado atual da sua sessão.</p>
+              </div>
+              <span class="tag">Agora</span>
+            </div>
+            <div class="activity-list">
+              <div class="activity">
+                <div class="activity-icon">✓</div>
+                <div><div class="activity-text">Autenticação validada</div><div class="activity-time">Sua sessão foi confirmada pela API.</div></div>
+              </div>
+              <div class="activity">
+                <div class="activity-icon">⌘</div>
+                <div><div class="activity-text">Workspace identificado</div><div class="activity-time" id="activityCompanyName">Conta carregada.</div></div>
+              </div>
+              <div class="activity">
+                <div class="activity-icon">↗</div>
+                <div><div class="activity-text">Plataforma pronta</div><div class="activity-time">Você já pode explorar as áreas disponíveis.</div></div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <div class="section-heading" id="tools">
+          <h2>Ferramentas da plataforma</h2>
+          <span>Escolha uma área para continuar</span>
+        </div>
+
+        <section class="tools-grid">
+          <a class="tool-card" href="#tools" data-tool="sales">
+            <div class="tool-icon">↗</div>
+            <h3>Inteligência de vendas</h3>
+            <p>Área preparada para reunir ferramentas de apoio comercial e organização do processo de vendas.</p>
+            <div class="tool-link">Explorar recurso ↗</div>
+          </a>
+          <a class="tool-card" href="#tools" data-tool="automation">
+            <div class="tool-icon">✳</div>
+            <h3>Automações inteligentes</h3>
+            <p>Central para organizar os fluxos de automação que forem disponibilizados à sua empresa.</p>
+            <div class="tool-link">Explorar recurso ↗</div>
+          </a>
+          <a class="tool-card" href="#tools" data-tool="reports">
+            <div class="tool-icon">▤</div>
+            <h3>Relatórios e resultados</h3>
+            <p>Espaço reservado para relatórios, indicadores e acompanhamento dos resultados reais.</p>
+            <div class="tool-link">Explorar recurso ↗</div>
+          </a>
+        </section>
+
+        <section class="notice">
+          <div class="notice-icon">✦</div>
+          <div>
+            <strong>Seu espaço está conectado</strong>
+            <p>Esta versão fornece a interface e a validação de acesso. As ferramentas, integrações e métricas de negócio precisam ser conectadas aos seus módulos reais para executar ações e apresentar resultados verdadeiros.</p>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span>© <span id="year"></span> Agência Marks. Todos os direitos reservados.</span>
+          <span>Feito para simplificar o trabalho.</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script>
+    const API_BASE = "https://agencia-marks.onrender.com";
+    const TOKEN_KEY = "marks_company_token";
+    const $ = id => document.getElementById(id);
+
+    function logout() {
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem("marks_company_name");
+      window.location.replace("./login.html");
+    }
+
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.hidden = false;
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => { toast.hidden = true; }, 3500);
+    }
+
+    function setCompanyName(name) {
+      const safeName = name || "Sua empresa";
+      $("welcomeCompanyName").textContent = safeName;
+      $("sidebarCompanyName").textContent = safeName;
+      $("activityCompanyName").textContent = "Conta: " + safeName;
+      $("workspaceShortName").textContent =
+        safeName.length > 16 ? safeName.slice(0, 14) + "…" : safeName;
+      $("userAvatar").textContent = safeName.trim().charAt(0).toUpperCase() || "M";
+    }
+
+    async function initializeDashboard() {
+      const token = sessionStorage.getItem(TOKEN_KEY);
+
+      if (!token) {
+        logout();
+        return;
+      }
+
+      setCompanyName(sessionStorage.getItem("marks_company_name"));
+      $("todayDate").textContent = new Date().toLocaleDateString("pt-BR", {
+        weekday: "short",
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+      $("year").textContent = new Date().getFullYear();
+
+      try {
+        const response = await fetch(API_BASE + "/api/auth/me", {
+          headers: { Authorization: "Bearer " + token }
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || data.user?.role !== "company") {
+          logout();
+          return;
+        }
+
+        setCompanyName(data.user.companyName || sessionStorage.getItem("marks_company_name"));
+        $("apiStatus").textContent = "Online";
+        $("apiStatus").style.color = "var(--green)";
+        $("apiStatusText").textContent = "API respondeu corretamente";
+      } catch (error) {
+        $("apiStatus").textContent = "Indisponível";
+        $("apiStatus").style.color = "var(--orange-light)";
+        $("apiStatusText").textContent = "Não foi possível confirmar a conexão";
+      }
+    }
+
+    $("logoutButton").addEventListener("click", logout);
+
+    $("menuToggle").addEventListener("click", () => {
+      $("sidebar").classList.toggle("open");
+    });
+
+    document.querySelectorAll("[data-section]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-section]").forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+
+        const section = button.dataset.section;
+        if (section === "overview") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (section === "tools") {
+          $("tools").scrollIntoView({ behavior: "smooth" });
+        } else {
+          $("activity").scrollIntoView({ behavior: "smooth" });
+        }
+
+        if (window.innerWidth <= 850) $("sidebar").classList.remove("open");
+      });
+    });
+
+    $("accountButton").addEventListener("click", () => {
+      showToast("Conta conectada: " + ($("welcomeCompanyName").textContent || "Sua empresa"));
+    });
+
+    $("helpButton").addEventListener("click", () => {
+      showToast("Central de ajuda: entre em contato com o administrador da plataforma.");
+    });
+
+    document.querySelectorAll("[data-tool]").forEach(tool => {
+      tool.addEventListener("click", event => {
+        event.preventDefault();
+        const names = {
+          sales: "Inteligência de vendas",
+          automation: "Automações inteligentes",
+          reports: "Relatórios e resultados"
+        };
+        showToast(names[tool.dataset.tool] + " ainda precisa ser conectada ao seu módulo funcional.");
+      });
+    });
+
+    document.addEventListener("click", event => {
+      if (window.innerWidth <= 850 &&
+          $("sidebar").classList.contains("open") &&
+          !$("sidebar").contains(event.target) &&
+          !$("menuToggle").contains(event.target)) {
+        $("sidebar").classList.remove("open");
+      }
+    });
+
+    initializeDashboard();
+  </script>
+</body>
+</html>
+
