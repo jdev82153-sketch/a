@@ -30,13 +30,18 @@ const loginLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Muitas tentativas. Tente novamente em 15 minutos." }
+  message: {
+    success: false,
+    message: "Muitas tentativas. Tente novamente em 15 minutos."
+  }
 });
 
 let schemaPromise;
 
 async function ensureSchema() {
-  if (!pool) throw new Error("DATABASE_URL não configurada.");
+  if (!pool) {
+    throw new Error("DATABASE_URL não configurada.");
+  }
 
   if (!schemaPromise) {
     schemaPromise = (async () => {
@@ -54,20 +59,29 @@ async function ensureSchema() {
         CREATE UNIQUE INDEX IF NOT EXISTS companies_name_unique
         ON companies (LOWER(name))
       `);
-    })();
+    })().catch(error => {
+      schemaPromise = null;
+      throw error;
+    });
   }
 
   return schemaPromise;
 }
 
 function createToken(payload, expiresIn = "8h") {
-  if (!API_SECRET) throw new Error("JWT_SECRET não configurada.");
+  if (!API_SECRET) {
+    throw new Error("JWT_SECRET não configurada.");
+  }
+
   return jwt.sign(payload, API_SECRET, { expiresIn });
 }
 
+// AUTENTICAÇÃO PELO TOKEN JWT
 function authenticate(req, res, next) {
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7)
+    : "";
 
   if (!token || !API_SECRET) {
     return res.status(401).json({
@@ -87,6 +101,7 @@ function authenticate(req, res, next) {
   }
 }
 
+// PERMISSÃO EXCLUSIVA DO ADMINISTRADOR
 function requireAdmin(req, res, next) {
   if (req.user?.role !== "admin") {
     return res.status(403).json({
@@ -94,25 +109,48 @@ function requireAdmin(req, res, next) {
       message: "Acesso exclusivo do administrador."
     });
   }
+
   next();
 }
 
+// ROTA INICIAL
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "API da Agência Marks está online." });
+  res.json({
+    success: true,
+    message: "API da Agência Marks está online."
+  });
 });
 
+// STATUS DA API
 app.get("/api/status", (req, res) => {
-  res.json({ success: true, service: "Agência Marks API", status: "online" });
+  res.json({
+    success: true,
+    service: "Agência Marks API",
+    status: "online"
+  });
 });
 
+// TESTE DO BANCO DE DADOS
 app.get("/api/db-status", async (req, res) => {
   try {
-    if (!pool) throw new Error("DATABASE_URL não configurada.");
+    if (!pool) {
+      throw new Error("DATABASE_URL não configurada.");
+    }
+
     const result = await pool.query("SELECT NOW() AS server_time");
-    res.json({ success: true, message: "Banco conectado.", serverTime: result.rows[0].server_time });
+
+    res.json({
+      success: true,
+      message: "Banco conectado.",
+      serverTime: result.rows[0].server_time
+    });
   } catch (error) {
     console.error("Falha no teste do banco:", error.message);
-    res.status(500).json({ success: false, message: "Não foi possível conectar ao banco." });
+
+    res.status(500).json({
+      success: false,
+      message: "Não foi possível conectar ao banco."
+    });
   }
 });
 
@@ -129,90 +167,129 @@ app.post("/api/admin/login", loginLimiter, async (req, res) => {
     const username = String(req.body.username || "");
     const password = String(req.body.password || "");
 
-    if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+    if (
+      username !== ADMIN_USERNAME ||
+      password !== ADMIN_PASSWORD
+    ) {
       return res.status(401).json({
         success: false,
         message: "Nome de administrador ou senha incorretos."
       });
     }
 
-    const token = createToken({ role: "admin", username }, "8h");
-    res.json({ success: true, token, username });
-  } catch (error) {
-    console.error("Erro no login administrativo:", error.message);
-    res.status(500).json({ success: false, message: "Erro ao realizar login." });
-  }
-});
+    const token = createToken({
+      role: "admin",
+      username
+    }, "8h");
 
-// CRIAR UMA EMPRESA E GERAR UMA CHAVE ÚNICA
-app.post("/api/admin/companies", authenticate, requireAdmin, async (req, res) => {
-  try {
-    await ensureSchema();
-
-    const name = String(req.body.name || "").trim();
-
-    if (name.length < 2 || name.length > 100) {
-      return res.status(400).json({
-        success: false,
-        message: "O nome da empresa deve ter entre 2 e 100 caracteres."
-      });
-    }
-
-    const key = "MARKS-" + crypto.randomBytes(24).toString("hex");
-    const keyHash = await bcrypt.hash(key, 12);
-
-    const result = await pool.query(
-      `INSERT INTO companies (name, key_hash)
-       VALUES ($1, $2)
-       RETURNING id, name, active, created_at`,
-      [name, keyHash]
-    );
-
-    // A chave original só é retornada nesta resposta.
-    res.status(201).json({
+    return res.json({
       success: true,
-      message: "Empresa criada. Copie a chave e guarde-a em local seguro.",
-      company: result.rows[0],
-      key
+      token,
+      username
     });
   } catch (error) {
-    if (error.code === "23505") {
-      return res.status(409).json({
+    console.error("Erro no login administrativo:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Erro ao realizar login."
+    });
+  }
+});
+
+// CRIAR EMPRESA E GERAR CHAVE DE ACESSO
+app.post(
+  "/api/admin/companies",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await ensureSchema();
+
+      const name = String(req.body.name || "").trim();
+
+      if (name.length < 2 || name.length > 100) {
+        return res.status(400).json({
+          success: false,
+          message: "O nome da empresa deve ter entre 2 e 100 caracteres."
+        });
+      }
+
+      const key = "MARKS-" + crypto.randomBytes(24).toString("hex");
+      const keyHash = await bcrypt.hash(key, 12);
+
+      const result = await pool.query(
+        `INSERT INTO companies (name, key_hash)
+         VALUES ($1, $2)
+         RETURNING id, name, active, created_at`,
+        [name, keyHash]
+      );
+
+      // A chave original só é enviada nesta resposta.
+      return res.status(201).json({
+        success: true,
+        message: "Empresa criada. Copie a chave e guarde-a em local seguro.",
+        company: result.rows[0],
+        key
+      });
+    } catch (error) {
+      if (error.code === "23505") {
+        return res.status(409).json({
+          success: false,
+          message: "Já existe uma empresa com esse nome."
+        });
+      }
+
+      console.error("Erro ao criar empresa:", error.message);
+
+      return res.status(500).json({
         success: false,
-        message: "Já existe uma empresa com esse nome."
+        message: "Não foi possível criar a empresa."
       });
     }
-
-    console.error("Erro ao criar empresa:", error.message);
-    res.status(500).json({ success: false, message: "Não foi possível criar a empresa." });
   }
-});
+);
 
-// LISTAR EMPRESAS — SEM EXPOR AS CHAVES
-app.get("/api/admin/companies", authenticate, requireAdmin, async (req, res) => {
-  try {
-    await ensureSchema();
+// LISTAR EMPRESAS SEM EXPOR AS CHAVES
+app.get(
+  "/api/admin/companies",
+  authenticate,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      await ensureSchema();
 
-    const result = await pool.query(
-      `SELECT id, name, active, created_at
-       FROM companies
-       ORDER BY created_at DESC`
-    );
+      const result = await pool.query(
+        `SELECT id, name, active, created_at
+         FROM companies
+         ORDER BY created_at DESC`
+      );
 
-    res.json({ success: true, companies: result.rows });
-  } catch (error) {
-    console.error("Erro ao listar empresas:", error.message);
-    res.status(500).json({ success: false, message: "Não foi possível listar as empresas." });
+      return res.json({
+        success: true,
+        companies: result.rows
+      });
+    } catch (error) {
+      console.error("Erro ao listar empresas:", error.message);
+
+      return res.status(500).json({
+        success: false,
+        message: "Não foi possível listar as empresas."
+      });
+    }
   }
-});
+);
 
-// LOGIN DA EMPRESA COM NOME + CHAVE
+// LOGIN DA EMPRESA COM NOME E CHAVE
 app.post("/api/company/login", loginLimiter, async (req, res) => {
   try {
     await ensureSchema();
 
     if (!API_SECRET) {
-      return res.status(503).json({ success: false, message: "API não configurada." });
+      return res.status(503).json({
+        success: false,
+        message: "API não configurada."
+      });
     }
 
     const name = String(req.body.name || "").trim();
@@ -228,7 +305,8 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
     const result = await pool.query(
       `SELECT id, name, key_hash
        FROM companies
-       WHERE LOWER(name) = LOWER($1) AND active = TRUE`,
+       WHERE LOWER(name) = LOWER($1)
+         AND active = TRUE`,
       [name]
     );
 
@@ -255,36 +333,97 @@ app.post("/api/company/login", loginLimiter, async (req, res) => {
       companyName: company.name
     }, "12h");
 
-    res.json({
+    return res.json({
       success: true,
       token,
-      company: { id: company.id, name: company.name }
+      company: {
+        id: company.id,
+        name: company.name
+      }
     });
   } catch (error) {
     console.error("Erro no login da empresa:", error.message);
-    res.status(500).json({ success: false, message: "Não foi possível realizar o login." });
+
+    return res.status(500).json({
+      success: false,
+      message: "Não foi possível realizar o login."
+    });
   }
 });
 
-// VALIDAR A SESSÃO ATUAL
-app.get("/api/auth/me", authenticate, (req, res) => {
-  res.json({
-    success: true,
-    user: {
-      role: req.user.role,
-      username: req.user.username || null,
-      companyId: req.user.companyId || null,
-      companyName: req.user.companyName || null
+// VALIDAR SESSÃO E CONFERIR SE A EMPRESA ESTÁ ATIVA
+app.get("/api/auth/me", authenticate, async (req, res) => {
+  try {
+    // O administrador também pode validar sua sessão.
+    if (req.user.role === "admin") {
+      return res.json({
+        success: true,
+        user: {
+          role: "admin",
+          username: req.user.username || null,
+          companyId: null,
+          companyName: null
+        }
+      });
     }
-  });
+
+    // Rejeita tokens que não pertençam a uma empresa válida.
+    if (req.user.role !== "company" || !req.user.companyId) {
+      return res.status(403).json({
+        success: false,
+        message: "Acesso não autorizado."
+      });
+    }
+
+    await ensureSchema();
+
+    // Confere o estado atual da empresa diretamente no banco.
+    const result = await pool.query(
+      `SELECT id, name, active
+       FROM companies
+       WHERE id = $1`,
+      [req.user.companyId]
+    );
+
+    if (!result.rows.length || !result.rows[0].active) {
+      return res.status(403).json({
+        success: false,
+        message: "Sua conta está suspensa ou não está mais disponível. Entre em contato com o administrador."
+      });
+    }
+
+    const company = result.rows[0];
+
+    return res.json({
+      success: true,
+      user: {
+        role: "company",
+        username: null,
+        companyId: String(company.id),
+        companyName: company.name
+      }
+    });
+  } catch (error) {
+    console.error("Erro ao validar sessão:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Não foi possível validar sua sessão."
+    });
+  }
 });
 
+// INICIALIZAÇÃO DO SERVIDOR
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Agência Marks API rodando na porta ${PORT}`);
   console.log("PostgreSQL configurado:", Boolean(pool));
 });
 
+// ENCERRAMENTO GRACIOSO
 process.on("SIGTERM", async () => {
-  if (pool) await pool.end().catch(() => {});
+  if (pool) {
+    await pool.end().catch(() => {});
+  }
+
   process.exit(0);
 });
