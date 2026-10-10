@@ -1,1 +1,1155 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Central de automações inteligentes da Agência Marks.">
+  <title>Automações | Agência Marks</title>
+
+  <style>
+    :root {
+      --bg: #090909;
+      --panel: #111111;
+      --panel2: #161616;
+      --border: #292929;
+      --text: #f5f5f5;
+      --muted: #929292;
+      --orange: #ff6a00;
+      --orange-soft: rgba(255,106,0,.12);
+      --green: #35d49a;
+      --red: #ff6464;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Arial, sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { min-height: 100vh; }
+
+    .sidebar {
+      width: 250px;
+      position: fixed;
+      inset: 0 auto 0 0;
+      padding: 24px 16px;
+      background: #0c0c0c;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px 28px;
+    }
+
+    .brand img {
+      width: 43px;
+      height: 43px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .brand-name span { color: var(--orange); }
+
+    .brand-sub {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .nav-label {
+      padding: 10px 12px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #777;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #aaa;
+      text-decoration: none;
+      padding: 12px 13px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: 13px;
+      transition: .2s;
+    }
+
+    .nav a:hover {
+      background: #171717;
+      color: white;
+    }
+
+    .nav a.active {
+      color: white;
+      background: var(--orange-soft);
+      border-color: rgba(255,106,0,.25);
+    }
+
+    .nav-icon {
+      width: 21px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 14px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #111;
+    }
+
+    .sidebar-bottom strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-bottom p {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .main {
+      margin-left: 250px;
+      padding: 30px 34px 50px;
+      max-width: 1600px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .breadcrumb {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 9px;
+    }
+
+    h1 {
+      font-size: clamp(25px, 3vw, 34px);
+      margin: 0;
+      letter-spacing: -1.2px;
+    }
+
+    .subtitle {
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 650px;
+    }
+
+    .account {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 13px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--orange-soft);
+      color: var(--orange);
+      font-weight: 800;
+    }
+
+    .account strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .account small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 4px;
+    }
+
+    .status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid rgba(255,106,0,.25);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(ellipse at top left, rgba(255,106,0,.09), transparent 65%),
+        var(--panel);
+    }
+
+    .banner-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .banner-icon {
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--orange-soft);
+      font-size: 23px;
+    }
+
+    .status-banner h2 {
+      font-size: 15px;
+      margin: 0 0 7px;
+    }
+
+    .status-banner p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      white-space: nowrap;
+      border-radius: 30px;
+      background: #202020;
+      border: 1px solid #333;
+      color: #bbb;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #888;
+    }
+
+    .status-pill.connected {
+      color: var(--green);
+      border-color: rgba(53,212,154,.25);
+      background: rgba(53,212,154,.08);
+    }
+
+    .status-pill.connected .status-dot { background: var(--green); }
+
+    .status-pill.error {
+      color: var(--red);
+      border-color: rgba(255,100,100,.25);
+    }
+
+    .status-pill.error .status-dot { background: var(--red); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 15px;
+      margin-bottom: 27px;
+    }
+
+    .stat-card {
+      padding: 19px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      min-width: 0;
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #1c1c1c;
+    }
+
+    .stat-value {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .stat-note {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, .85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-header {
+      padding: 21px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-header h2 {
+      font-size: 15px;
+      margin: 0 0 7px;
+    }
+
+    .panel-header p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .panel-body { padding: 22px; }
+
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 9px;
+    }
+
+    .field .hint {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      color: var(--text);
+      background: #0b0b0b;
+      border: 1px solid #303030;
+      border-radius: 10px;
+      padding: 12px 13px;
+      outline: none;
+      font-size: 12px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .input:focus, .select:focus, .textarea:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,106,0,.09);
+    }
+
+    .select { color-scheme: dark; }
+    .textarea { resize: vertical; min-height: 130px; line-height: 1.7; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .save-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 15px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      transition: .2s;
+    }
+
+    .btn-primary {
+      color: white;
+      background: var(--orange);
+    }
+
+    .btn-primary:hover {
+      background: #e96000;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      color: #eee;
+      background: #1b1b1b;
+      border-color: #333;
+    }
+
+    .btn-secondary:hover { background: #252525; }
+
+    .btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .connection-card {
+      padding: 19px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #0d0d0d;
+      margin-bottom: 15px;
+    }
+
+    .connection-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .whatsapp-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(37,211,102,.1);
+      font-size: 21px;
+    }
+
+    .connection-heading strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .connection-heading small {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .connection-details {
+      border-top: 1px solid #262626;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+    }
+
+    .connection-details span { color: var(--muted); }
+    .connection-details strong { text-align: right; overflow-wrap: anywhere; }
+
+    .notice {
+      padding: 13px;
+      background: rgba(255,106,0,.07);
+      border: 1px solid rgba(255,106,0,.18);
+      border-radius: 10px;
+      font-size: 11px;
+      line-height: 1.7;
+      color: #d1c1b7;
+      margin-top: 15px;
+    }
+
+    .steps { display: grid; gap: 17px; }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .step-number {
+      width: 27px;
+      height: 27px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid #393939;
+      border-radius: 9px;
+      background: #1b1b1b;
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 12px;
+      margin: 3px 0 5px;
+    }
+
+    .step p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .notice-bar {
+      display: none;
+      margin-bottom: 20px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .notice-bar.show { display: block; }
+    .notice-bar.success {
+      background: rgba(53,212,154,.08);
+      border: 1px solid rgba(53,212,154,.25);
+      color: var(--green);
+    }
+
+    .notice-bar.error {
+      background: rgba(255,100,100,.08);
+      border: 1px solid rgba(255,100,100,.25);
+      color: #ff9292;
+    }
+
+    .notice-bar.info {
+      background: rgba(255,106,0,.08);
+      border: 1px solid rgba(255,106,0,.25);
+      color: #ffb17c;
+    }
+
+    .footer {
+      padding-top: 25px;
+      text-align: center;
+      color: #666;
+      font-size: 11px;
+    }
+
+    .mobile-menu {
+      display: none;
+      color: white;
+      background: #171717;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .main { padding: 25px 22px; }
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .sidebar {
+        width: 260px;
+        transform: translateX(-100%);
+        transition: transform .25s;
+        box-shadow: 15px 0 40px rgba(0,0,0,.4);
+      }
+
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 20px 15px 35px; }
+      .mobile-menu { display: inline-flex; }
+      .topbar { align-items: flex-start; }
+      .topbar-left { display: flex; gap: 11px; align-items: flex-start; }
+      .account { padding: 7px; }
+      .account > div:last-child { display: none; }
+      .status-banner { align-items: flex-start; flex-direction: column; }
+      .stats { grid-template-columns: 1fr; gap: 10px; }
+      .stat-card { padding: 15px; }
+      .stat-top { margin-bottom: 10px; }
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+      .panel-body { padding: 17px; }
+      .panel-header { padding: 18px 17px; }
+      .actions { align-items: stretch; flex-direction: column; }
+      .actions .btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img
+          src="./assets/file_00000000fd78820e92e83ac19e9c553f.png"
+          alt="Agência Marks"
+          onerror="this.style.display='none'"
+        >
+        <div>
+          <div class="brand-name">AGÊNCIA <span>MARKS</span></div>
+          <div class="brand-sub">AUTOMAÇÃO INTELIGENTE</div>
+        </div>
+      </div>
+
+      <div class="nav-label">Plataforma</div>
+      <nav class="nav">
+        <a href="./dashboard.html">
+          <span class="nav-icon">▦</span> Visão geral
+        </a>
+        <a href="./automacoes.html" class="active">
+          <span class="nav-icon">ϟ</span> Automações
+        </a>
+        <a href="./vendas.html">
+          <span class="nav-icon">↗</span> Inteligência de vendas
+        </a>
+        <a href="./relatorios.html">
+          <span class="nav-icon">▤</span> Relatórios
+        </a>
+        <a href="./admin.html" id="adminLink" hidden>
+          <span class="nav-icon">⚙</span> Administração
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <strong>Agência Marks 2.0</strong>
+        <p>Configure seu assistente, personalize as respostas e acompanhe a conexão dos seus canais.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu" id="menuButton" type="button" aria-label="Abrir menu">☰</button>
+          <div>
+            <div class="breadcrumb">Plataforma / Automações</div>
+            <h1>Central de automações</h1>
+            <p class="subtitle">
+              Configure o comportamento do seu assistente e prepare o atendimento
+              da sua empresa para trabalhar de forma mais inteligente.
+            </p>
+          </div>
+        </div>
+
+        <div class="account">
+          <div class="avatar">M</div>
+          <div>
+            <strong id="companyName">Sua empresa</strong>
+            <small>Área da empresa</small>
+          </div>
+        </div>
+      </header>
+
+      <div id="noticeBar" class="notice-bar" role="status" aria-live="polite"></div>
+
+      <section class="status-banner">
+        <div class="banner-content">
+          <div class="banner-icon">✦</div>
+          <div>
+            <h2>Seu assistente, do seu jeito</h2>
+            <p>Personalize as instruções e consulte o estado da integração do WhatsApp.</p>
+          </div>
+        </div>
+        <div id="mainStatus" class="status-pill">
+          <span class="status-dot"></span>
+          Verificando status...
+        </div>
+      </section>
+
+      <section class="stats">
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Assistente virtual</span>
+            <span class="stat-icon">✦</span>
+          </div>
+          <div class="stat-value" id="assistantStat">Configurando</div>
+          <div class="stat-note">Personalização salva da sua empresa</div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">WhatsApp Business</span>
+            <span class="stat-icon">◉</span>
+          </div>
+          <div class="stat-value" id="whatsappStat">Verificando</div>
+          <div class="stat-note" id="whatsappNote">Consultando a API</div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-top">
+            <span class="stat-label">Automação</span>
+            <span class="stat-icon">ϟ</span>
+          </div>
+          <div class="stat-value" id="automationStat">Em configuração</div>
+          <div class="stat-note">O envio automático depende da integração completa</div>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Personalidade do assistente</h2>
+            <p>Defina como o assistente deve se apresentar e orientar seus clientes.</p>
+          </div>
+
+          <div class="panel-body">
+            <form id="settingsForm">
+              <div class="field">
+                <label for="businessType">Segmento da empresa</label>
+                <input
+                  class="input"
+                  id="businessType"
+                  name="businessType"
+                  maxlength="120"
+                  placeholder="Ex.: clínica odontológica, loja, imobiliária"
+                >
+                <span class="hint">Ajuda a contextualizar as instruções do atendimento.</span>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="assistantName">Nome do assistente</label>
+                  <input
+                    class="input"
+                    id="assistantName"
+                    name="assistantName"
+                    maxlength="100"
+                    minlength="2"
+                    required
+                    placeholder="Ex.: Alex"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="tone">Tom de voz</label>
+                  <select class="select" id="tone" name="tone">
+                    <option>Profissional e acolhedor</option>
+                    <option>Amigável e descontraído</option>
+                    <option>Formal e objetivo</option>
+                    <option>Consultivo e persuasivo</option>
+                    <option>Elegante e sofisticado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="instructions">Instruções personalizadas</label>
+                <textarea
+                  class="textarea"
+                  id="instructions"
+                  name="instructions"
+                  maxlength="6000"
+                  placeholder="Ex.: apresente os serviços, tire dúvidas frequentes, explique os horários de atendimento e encaminhe para uma pessoa quando não souber responder."
+                ></textarea>
+                <span class="hint">
+                  Escreva as regras que deverão orientar o assistente. Não inclua senhas
+                  nem tokens de acesso neste campo.
+                </span>
+              </div>
+
+              <div class="actions">
+                <span class="save-note" id="saveNote">As alterações ainda não foram verificadas.</span>
+                <button class="btn btn-primary" id="saveButton" type="submit">
+                  <span>✓</span> Salvar configurações
+                </button>
+              </div>
+            </form>
+          </div>
+        </article>
+
+        <div>
+          <article class="panel">
+            <div class="panel-header">
+              <h2>Conexão do WhatsApp</h2>
+              <p>Confira o estado da conexão cadastrada para sua empresa.</p>
+            </div>
+
+            <div class="panel-body">
+              <div class="connection-card">
+                <div class="connection-heading">
+                  <div class="whatsapp-icon">◉</div>
+                  <div>
+                    <strong>WhatsApp Business Platform</strong>
+                    <small id="connectionDescription">Verificando conexão...</small>
+                  </div>
+                </div>
+
+                <div class="connection-details">
+                  <span>Número conectado</span>
+                  <strong id="phoneNumber">Não informado</strong>
+                </div>
+
+                <div class="connection-details" style="margin-top:12px">
+                  <span>Última conexão</span>
+                  <strong id="connectedAt">—</strong>
+                </div>
+              </div>
+
+              <button class="btn btn-secondary" id="refreshButton" type="button" style="width:100%">
+                ↻ Atualizar status
+              </button>
+
+              <div class="notice">
+                A conexão oficial ainda precisa ser configurada no Meta for Developers.
+                Este painel não simula uma conexão nem envia mensagens por conta própria.
+              </div>
+            </div>
+          </article>
+
+          <article class="panel" style="margin-top:20px">
+            <div class="panel-header">
+              <h2>Próximas etapas</h2>
+              <p>O que falta para colocar o atendimento automático em funcionamento.</p>
+            </div>
+
+            <div class="panel-body">
+              <div class="steps">
+                <div class="step">
+                  <div class="step-number">01</div>
+                  <div>
+                    <strong>Personalizar o assistente</strong>
+                    <p>Salve o segmento, o nome e as instruções específicas da empresa.</p>
+                  </div>
+                </div>
+
+                <div class="step">
+                  <div class="step-number">02</div>
+                  <div>
+                    <strong>Conectar o WhatsApp oficial</strong>
+                    <p>Configurar o aplicativo Meta, a conta comercial e as permissões necessárias.</p>
+                  </div>
+                </div>
+
+                <div class="step">
+                  <div class="step-number">03</div>
+                  <div>
+                    <strong>Integrar a inteligência artificial</strong>
+                    <p>Configurar o modelo de IA, o webhook de mensagens e o envio de respostas.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Agência Marks · Automação inteligente para empresas
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const API_BASE = "https://agencia-marks.onrender.com";
+
+      const companyToken = sessionStorage.getItem("marks_company_token");
+      const adminToken = sessionStorage.getItem("marks_admin_token");
+      const token = companyToken || adminToken;
+
+      const $ = (id) => document.getElementById(id);
+
+      const form = $("settingsForm");
+      const saveButton = $("saveButton");
+      const saveNote = $("saveNote");
+      const noticeBar = $("noticeBar");
+
+      let originalSettings = null;
+
+      function showNotice(message, type = "info") {
+        noticeBar.textContent = message;
+        noticeBar.className = `notice-bar show ${type}`;
+      }
+
+      function setPill(element, text, state = "") {
+        element.className = `status-pill${state ? " " + state : ""}`;
+        element.replaceChildren();
+
+        const dot = document.createElement("span");
+        dot.className = "status-dot";
+        element.append(dot, document.createTextNode(text));
+      }
+
+      async function apiRequest(path, options = {}) {
+        const response = await fetch(`${API_BASE}${path}`, {
+          ...options,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...options.headers
+          }
+        });
+
+        let data;
+
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("O servidor retornou uma resposta inválida.");
+        }
+
+        if (response.status === 401 || response.status === 403) {
+          sessionStorage.removeItem("marks_company_token");
+          sessionStorage.removeItem("marks_admin_token");
+          window.location.href = "./login.html";
+          throw new Error("Sua sessão expirou. Entre novamente.");
+        }
+
+        if (!response.ok || data.success === false) {
+          throw new Error(data.message || "Não foi possível concluir a operação.");
+        }
+
+        return data;
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return "—";
+
+        return date.toLocaleString("pt-BR", {
+          dateStyle: "short",
+          timeStyle: "short"
+        });
+      }
+
+      function fillSettings(settings = {}) {
+        $("businessType").value = settings.business_type || "";
+        $("assistantName").value = settings.assistant_name || "Assistente Marks";
+        $("tone").value = settings.tone || "Profissional e acolhedor";
+        $("instructions").value = settings.instructions || "";
+
+        originalSettings = JSON.stringify({
+          businessType: $("businessType").value,
+          assistantName: $("assistantName").value,
+          tone: $("tone").value,
+          instructions: $("instructions").value
+        });
+
+        $("assistantStat").textContent = $("assistantName").value;
+        saveNote.textContent = "Configurações carregadas do servidor.";
+      }
+
+      function currentSettings() {
+        return {
+          businessType: $("businessType").value.trim(),
+          assistantName: $("assistantName").value.trim(),
+          tone: $("tone").value,
+          instructions: $("instructions").value.trim()
+        };
+      }
+
+      function renderWhatsApp(whatsapp = {}) {
+        const status = whatsapp.connection_status || "disconnected";
+        const labels = {
+          connected: "Conectado",
+          pending: "Aguardando configuração",
+          disconnected: "Desconectado",
+          error: "Erro na conexão"
+        };
+
+        const label = labels[status] || "Status desconhecido";
+        const stateClass = status === "connected"
+          ? "connected"
+          : status === "error" ? "error" : "";
+
+        setPill($("mainStatus"), label, stateClass);
+        $("whatsappStat").textContent = label;
+        $("whatsappNote").textContent = whatsapp.display_phone || "Nenhum número informado";
+        $("connectionDescription").textContent = label;
+        $("phoneNumber").textContent = whatsapp.display_phone || "Não informado";
+        $("connectedAt").textContent = formatDate(whatsapp.connected_at);
+
+        if (status === "connected") {
+          $("automationStat").textContent = "Conexão registrada";
+        } else {
+          $("automationStat").textContent = "Em configuração";
+        }
+      }
+
+      async function loadPage() {
+        try {
+          const data = await apiRequest("/api/automation/settings");
+
+          fillSettings(data.settings || {});
+          renderWhatsApp(data.whatsapp || {});
+          $("companyName").textContent = data.companyName || "Sua empresa";
+        } catch (error) {
+          showNotice(
+            `${error.message} Confira se o backend foi atualizado e publicado no Render.`,
+            "error"
+          );
+          setPill($("mainStatus"), "Não foi possível verificar", "error");
+          $("whatsappStat").textContent = "Indisponível";
+          $("whatsappNote").textContent = "Não foi possível consultar a API";
+          $("connectionDescription").textContent = "Não foi possível consultar a API";
+          $("automationStat").textContent = "Não verificada";
+          saveNote.textContent = "A API ainda não confirmou as configurações.";
+        }
+      }
+
+      async function refreshWhatsApp() {
+        const button = $("refreshButton");
+        button.disabled = true;
+        button.textContent = "Consultando...";
+
+        try {
+          const data = await apiRequest("/api/automation/whatsapp/status");
+          renderWhatsApp(data.whatsapp || {});
+          showNotice("Status atualizado com os dados retornados pelo servidor.", "success");
+        } catch (error) {
+          showNotice(error.message, "error");
+        } finally {
+          button.disabled = false;
+          button.textContent = "↻ Atualizar status";
+        }
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const settings = currentSettings();
+
+        if (settings.assistantName.length < 2) {
+          showNotice("Informe um nome com pelo menos 2 caracteres.", "error");
+          $("assistantName").focus();
+          return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Salvando...";
+        saveNote.textContent = "Enviando alterações ao servidor...";
+
+        try {
+          const data = await apiRequest("/api/automation/settings", {
+            method: "PUT",
+            body: JSON.stringify(settings)
+          });
+
+          fillSettings(data.settings || settings);
+          showNotice("Configurações salvas com sucesso no servidor.", "success");
+        } catch (error) {
+          saveNote.textContent = "Não foi possível confirmar o salvamento.";
+          showNotice(error.message, "error");
+        } finally {
+          saveButton.disabled = false;
+          saveButton.innerHTML = "<span>✓</span> Salvar configurações";
+        }
+      });
+
+      $("refreshButton").addEventListener("click", refreshWhatsApp);
+
+      $("menuButton").addEventListener("click", () => {
+        $("sidebar").classList.toggle("open");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (
+          window.innerWidth <= 760 &&
+          !$("sidebar").contains(event.target) &&
+          !$("menuButton").contains(event.target)
+        ) {
+          $("sidebar").classList.remove("open");
+        }
+      });
+
+      for (const field of form.querySelectorAll("input, select, textarea")) {
+        field.addEventListener("input", updateDirtyState);
+        field.addEventListener("change", updateDirtyState);
+      }
+
+      function updateDirtyState() {
+        if (originalSettings === null) return;
+
+        const changed = JSON.stringify(currentSettings()) !== originalSettings;
+
+        saveNote.textContent = changed
+          ? "Você tem alterações que ainda não foram salvas."
+          : "Todas as alterações estão salvas.";
+      }
+
+      if (!token) {
+        window.location.href = "./login.html";
+      } else {
+        if (adminToken && !companyToken) {
+          $("adminLink").hidden = false;
+        }
+
+        loadPage();
+      }
+    })();
+  </script>
+</body>
+</html>
+
