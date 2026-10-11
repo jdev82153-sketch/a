@@ -11,7 +11,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-// Configurações gerais
 app.disable("x-powered-by");
 
 app.use(helmet());
@@ -50,7 +49,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Teste da conexão com PostgreSQL
+// Teste de conexão com PostgreSQL
 app.get("/api/db-health", async (req, res) => {
   try {
     const result = await db.query("SELECT NOW() AS database_time");
@@ -62,7 +61,7 @@ app.get("/api/db-health", async (req, res) => {
       timestamp: result.rows[0].database_time,
     });
   } catch (error) {
-    console.error("Erro ao conectar ao PostgreSQL:", error.message);
+    console.error("Erro PostgreSQL:", error.message);
 
     res.status(503).json({
       success: false,
@@ -71,7 +70,38 @@ app.get("/api/db-health", async (req, res) => {
   }
 });
 
-// Informações das rotas públicas
+// Verifica se a tabela users já existe
+app.get("/api/db-check-users", async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_name = 'users'
+      ) AS users_table_exists
+    `);
+
+    const exists = result.rows[0].users_table_exists;
+
+    res.status(200).json({
+      success: true,
+      users_table_exists: exists,
+      message: exists
+        ? "Tabela de usuários encontrada."
+        : "Tabela de usuários ainda não foi criada.",
+    });
+  } catch (error) {
+    console.error("Erro ao verificar tabela:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Não foi possível verificar a tabela.",
+    });
+  }
+});
+
+// Informações da API
 app.get("/api", (req, res) => {
   res.status(200).json({
     success: true,
@@ -80,6 +110,7 @@ app.get("/api", (req, res) => {
       home: "/",
       health: "/api/health",
       database: "/api/db-health",
+      usersTableCheck: "/api/db-check-users",
     },
   });
 });
@@ -93,7 +124,7 @@ app.use((req, res) => {
   });
 });
 
-// Tratamento centralizado de erros
+// Tratamento de erros
 app.use((err, req, res, next) => {
   console.error("Erro interno:", err.message);
 
