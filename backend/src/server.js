@@ -4,21 +4,25 @@ require("dotenv").config();
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
+const db = require("./config/db");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
+// Configurações gerais
 app.disable("x-powered-by");
 
 app.use(helmet());
 
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
+  : true;
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL
-      ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
-      : true,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -36,18 +40,38 @@ app.get("/", (req, res) => {
   });
 });
 
-// Verificação de saúde da API
+// Status da API
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "Agência Marks API está funcionando.",
     status: "online",
-    environment: NODE_ENV,
     timestamp: new Date().toISOString(),
   });
 });
 
-// Informações básicas da API
+// Teste da conexão com PostgreSQL
+app.get("/api/db-health", async (req, res) => {
+  try {
+    const result = await db.query("SELECT NOW() AS database_time");
+
+    res.status(200).json({
+      success: true,
+      message: "Conexão com PostgreSQL funcionando.",
+      database: "online",
+      timestamp: result.rows[0].database_time,
+    });
+  } catch (error) {
+    console.error("Erro ao conectar ao PostgreSQL:", error.message);
+
+    res.status(503).json({
+      success: false,
+      message: "Não foi possível conectar ao banco de dados.",
+    });
+  }
+});
+
+// Informações das rotas públicas
 app.get("/api", (req, res) => {
   res.status(200).json({
     success: true,
@@ -55,6 +79,7 @@ app.get("/api", (req, res) => {
     endpoints: {
       home: "/",
       health: "/api/health",
+      database: "/api/db-health",
     },
   });
 });
@@ -68,9 +93,9 @@ app.use((req, res) => {
   });
 });
 
-// Tratamento de erros
+// Tratamento centralizado de erros
 app.use((err, req, res, next) => {
-  console.error("Erro na API:", err.message);
+  console.error("Erro interno:", err.message);
 
   if (res.headersSent) {
     return next(err);
@@ -82,9 +107,27 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Inicialização
-app.listen(PORT, "0.0.0.0", () => {
+// Inicialização do servidor
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(
     `Agência Marks API online na porta ${PORT} (${NODE_ENV}).`
   );
 });
+
+// Encerramento seguro
+function shutdown(signal) {
+  console.log(`${signal} recebido. Encerrando servidor...`);
+
+  server.close(() => {
+    db.end()
+      .catch((error) => {
+        console.error("Erro ao encerrar PostgreSQL:", error.message);
+      })
+      .finally(() => {
+        process.exit(0);
+      });
+  });
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
